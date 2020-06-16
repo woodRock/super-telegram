@@ -1,6 +1,37 @@
 # Change Log 
 This file stores the relevant changes from the Mapserver Changelogs. It will evaluate whether each change will effect the current Mapfiles for the new WMS.
 
+
+
+## Changes from 6.4.5 to 6.4.6
+- [x] handle phpmapscript vulnerability in error handling ( #6014 ) (Jeff McKenna) : a2614cb
+- [x] Fix potential XSS issue with [layers] tag. (Steve Lime) : d27b8b5
+- [x] mapimagio.c: backport support for giflib >= 5.1 (Even Rouault) : e349792
+- [x] security fix (Jeff McKenna) : f096b13
+
+## Changes from 6.4.4 to 6.4.5
+- [x] Security release for CVE-2017-5522
+- [x] Fix cluster with WMS dimension issue ( #5364 ) (Tamas Szekeres) : 45b3594
+
+## Changes from 6.4.3 to 6.4.4
+- [x] Security release for CVE-2016-9839
+- [x] Backport #4928 and #5356 (Thomas Bonfort) : 022d24b
+- [x] fix typo on PERCENTAGES in mapfile writer (Thomas Bonfort) : a0437f8
+- [x] This patch is to fix the issue “GetCapabilities request is extremely slow when “OWS_LAYER_GROUP” is used” (aabhayas) : 55558b3
+
+## Changes from 6.4.2 to 6.4.3
+- [x] Contour layer: support tileindex and WMS time ( #5212 ) (Even Rouault) : a752e70
+- [x] Fix memory leak when loading FORMATOPTIONS ( #5149 ) (Thomas Bonfort) : 4df5f9f
+- [x] Allow empty items in inline features ( #5182 ) (Thomas Bonfort) : f404adf
+- [x] Fix mapscript saving of numbers in exp format ( #5014 ) (Thomas Bonfort) : ed7d3f6
+- [x] Fixed case when drawing legend shapes with style geomtransforms. ( #5193 ) (Steve Lime) : 4f7d463
+Added to the list of bugs 
+- [x] Fixed label placement computation issue with thin polygons. ( #5234 ) (Steve Lime) : 078a6a3
+- [x] Discard labels outside image extent when using masks ( #5237 ) (Thomas Bonfort) : 4196ac3
+- [x] SLD: support LayerFeatureConstraints/FeatureTypeConstraint/Filter ( #4025 ) (Even Rouault) : c391b86
+- [x] Fixed a bug (see #5157 ) where converting points from pixel to image coordinates with the shpxy tag was happening twice. (Steve Lime) : c8f813d
+- [x] handle the case where include_dirs is set in distutils.cfg (Tomasz Pajor) : f6805a1
+
 ## Changes from 6.4.1 to 6.4.2
 - [x] Prevent XML external entities from being fetched with libxml2 < 2.9.0 (Even Rouault) : 6600f47
 ```bash 
