@@ -47,9 +47,9 @@ END
 
 - [ ] GD graphics library support was removed (http://www.mapserver.org/development/rfc/ms-rfc-99.html) and had been optional since 6.2.
 
-- [ ] GIF output cannot be produced from MapServer although 8-bit PNG output can be be produced using the AGG/PNG8 driver.
+  - [ ] GIF output cannot be produced from MapServer although 8-bit PNG output can be be produced using the AGG/PNG8 driver.
 
-- [ ] Bitmap fonts have been replaced with an embedded TrueType font (see http://www.mapserver.org/development/rfc/ms-rfc-104.html)
+  - [ ] Bitmap fonts have been replaced with an embedded TrueType font (see http://www.mapserver.org/development/rfc/ms-rfc-104.html)
 
 - [ ] RFC 98 - Label/Text Rendering Overhaul (http://www.mapserver.org/development/rfc/ms-rfc-98.html) may result in subtle label/character placement changes. Support for negative MAXLENGTH that implied forced linebreaks is not supported anymore, workaround implies pre-processing such labels to include linebreaks or wrap characters.
 
