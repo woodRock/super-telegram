@@ -1,0 +1,10 @@
+VALIDATION
+wfs_onlineresource
+ows_extent
+OPACITY
+FILTER
+gif
+GIF
+_encdoing
+UNION
+CLUSTER
