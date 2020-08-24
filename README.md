@@ -10,7 +10,7 @@ We are migrating an existing Web Map Service (WMS) to a different server. The ex
 
 ## Todo 
 1. [x] migrate psql database to _wellmapsrvdev02_
-2. [ ] migrate map files 
+2. [x] migrate map files 
 3. [ ] update deprecated syntax for each mapfile 
 4. [ ] verify each map file loads correctly via WMS
 5. [ ] redirect silverstripe WMS urls 
