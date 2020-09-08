@@ -11,6 +11,7 @@ for DATABASE in ${DATABASES[@]}; do
         echo "Initializing ${DATABASE}."
         dropdb $DATABASE
         createdb $DATABASE
+	psql -d $DATABASE -c "create extension postgis;"
 done
 
 echo "Finished"
