@@ -1,0 +1,7 @@
+#! /bin/sh
+
+# This script tests an SQL query used in a the Acoustic mapfile. 
+# This can be used to check that the postgres database has loaded.
+
+psql -d acoustic -c "select id, geom from transect order by start_time desc limit 2000";
+
