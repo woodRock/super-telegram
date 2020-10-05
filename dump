@@ -2,7 +2,7 @@
 
 
 # The IP address of the original psql database server
-WMS='192.168.16.39'
+source ~/.bash_profile
 
 # The postgres user to perform the operation with
 USER='woodj'
