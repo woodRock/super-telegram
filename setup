@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# The Databses that need to be created
-# DBS="acoustic basemap bioregions bio bio_atlas chat-call cli_map corax2005 nzoa nzoi nzpolitical os2020_oceans test test_mafbnz trawl"
+# Author: Jesse Wood 
+# Date: 2020-10-05
 
 # Imports the constants including WMS
 source ~/.bash_profile
 
+# The databases that need to be created
+# This pipeline gets the list of databases from the original server
+# This list excludes that datbases like `postgres=...`
 DBS=`psql -l -At -h $WMS | grep -v "=" | cut -f1 -d "|"`
 
 echo $DBS

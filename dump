@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Author: Jesse Wood 
+# Date: 2020-10-05
 
 # The IP address of the original psql database server
 source ~/.bash_profile
