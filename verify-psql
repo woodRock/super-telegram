@@ -40,8 +40,9 @@ error_message()
 DBS=get_databases
 
 for DB in $DBS; do
-	TABLES=get_tables $DB
-  
+
+  TBLS=get_tables $DB
+
   for TBL in $TBLS; do 
     
     OLD=get_count $WMS $DB $TBL
