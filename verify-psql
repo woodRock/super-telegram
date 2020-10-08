@@ -9,22 +9,33 @@ source ~/.bash_profile
 # Returns a list of the databses in the old WMS server.
 get_databases () 
 {
-  return `psql -l -At -h $WMS | grep -v "=" | cut -f1 -d "|"`
+  DBS=`psql -l -At -h $WMS | grep -v "=" | cut -f1 -d "|"`
 }
 
 # Returns a list of the tables that belong to a database.
 # $1 - Name of the database
 get_tables () 
 {
-  return `psql -h $WMS -d $1 -c "\dt;" | grep public | cut -f2 -d "|" | sed 's/^ *//g'`
+  TABLES=`psql -h $WMS -d $1 -c "\dt;" | grep public | cut -f2 -d "|" | sed 's/^ *//g'`
+}
+
+# Performs a count operation on a table in a database 
+# $1 - Host
+# $2 - Database 
+# $3 - Table 
+
+get_old_count () 
+{
+  OLD=`psql -h $1 -d $2 -c "select count(*) from $3" | sed -n 3p`
 }
 
 # Performs a count operation on a table in a database 
 # $1 - Database 
 # $2 - Table 
-get_count () 
+
+get_new_count () 
 {
-  return `psql -h $1 -d $2 -c "select count(*) from $3"
+  NEW=`psql -d $1 -c "select count(*) from $2" | sed -n 3p`
 }
 
 # Displays a context sensitive error message
@@ -34,19 +45,18 @@ get_count ()
 # $4 - Count result for new database
 error_message() 
 {
-  echo "Database: $1, Table: $2, Old: $1 != New: $2"
+  echo -e "Database: $1, Table: $2\n, Old: $3 != New: $4\n"
 }
 
-DBS=get_databases
+get_databases
 
 for DB in $DBS; do
 
-  TBLS=get_tables $DB
-
-  for TBL in $TBLS; do 
+  get_tables $DB 
+  for TBL in $TABLES; do 
     
-    OLD=get_count $WMS $DB $TBL
-    NEW=get_count localhost $DB $TBL
+    get_old_count $WMS $DB $TBL
+    get_new_count $DB $TBL
     
     if [[ $OLD != $NEW ]]
     then
