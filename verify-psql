@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Author: Jesse Wood 
+# Date: 2020-10-09
+
+# Bring our constants in
+source ~/.bash_profile
+
+# Returns a list of the databses in the old WMS server.
+get_databases () 
+{
+  return `psql -l -At -h $WMS | grep -v "=" | cut -f1 -d "|"`
+}
+
+# Returns a list of the tables that belong to a database.
+# $1 - Name of the database
+get_tables () 
+{
+  return `psql -h $WMS -d $1 -c "\dt;" | grep public | cut -f2 -d "|" | sed 's/^ *//g'`
+}
+
+# Performs a count operation on a table in a database 
+# $1 - Database 
+# $2 - Table 
+get_count () 
+{
+  return `psql -h $1 -d $2 -c "select count(*) from $3"
+}
+
+# Displays a context sensitive error message
+# $1 - Database 
+# $2 - Table 
+# $3 - Count result for old server 
+# $4 - Count result for new database
+error_message() 
+{
+  echo "Database: $1, Table: $2, Old: $1 != New: $2"
+}
+
+DBS=get_databases
+
+for DB in $DBS; do
+	TABLES=get_tables $DB
+  
+  for TBL in $TBLS; do 
+    
+    OLD=get_count $WMS $DB $TBL
+    NEW=get_count localhost $DB $TBL
+    
+    if [[ $OLD != $NEW ]]
+    then
+      error_message $DB $TBL $OLD $NEW
+    fi
+  done 
+done
