@@ -3,7 +3,10 @@
 # Author: Jesse Wood 
 # Date: 2020-10-09
 
-# TODO: Fix table names with spaces, e.g., `Region Code`
+# This script performs validation on the results of our pg_dump.
+# It gets the tables for each database in the previous server.
+# Performs a count operation. And compares the previous to the new.
+# The script can handle table names that include whitespaces.
 
 # Bring our constants in
 source ~/.bash_profile
@@ -18,10 +21,15 @@ get_databases ()
 # $1 - Name of the database
 get_tables () 
 {
+  # Retrieve a list of all the relations for a given database 
+  # Extract the name of the table from that result 
+  # Remove whitespaces from the start of that string.
+  # Remove trailing whitespaces.	
   TABLES=`psql -h $WMS -d $1 -c "\dt;" | 
 	  grep public | 
 	  cut -f2 -d "|" | 
-	  sed 's/^ *//g'`
+	  sed 's/^ *//g' | 
+	  sed 's/[ \t]*$//'`
 }
 
 # Performs a count operation on a table in a database 
@@ -31,7 +39,7 @@ get_tables ()
 
 get_old_count () 
 {
-  OLD=`psql -h $1 -d $2 -c "select count(*) from $3" | sed -n 3p`
+  OLD=`psql -h $1 -d $2 -c "select count(*) from \"$3\"" | sed -n 3p`
 }
 
 # Performs a count operation on a table in a database 
@@ -40,7 +48,7 @@ get_old_count ()
 
 get_new_count () 
 {
-  NEW=`psql -d $1 -c "select count(*) from $2" | sed -n 3p`
+  NEW=`psql -d $1 -c "select count(*) from \"$2\"" | sed -n 3p`
 }
 
 # Displays a context sensitive error message
@@ -58,7 +66,7 @@ get_databases
 for DB in $DBS; do
 
   get_tables $DB 
-  IFS=$'\n'       # make newlines the only separator
+  IFS=$'\n'
   for TBL in $TABLES; do 
     
     get_old_count $WMS $DB $TBL
@@ -69,5 +77,5 @@ for DB in $DBS; do
       error_message $DB $TBL $OLD $NEW
     fi
   done 
-  unset IFS # Table names may have spaces, databases do not
+  unset IFS 
 done
