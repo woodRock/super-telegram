@@ -3,6 +3,8 @@
 # Author: Jesse Wood 
 # Date: 2020-10-09
 
+# TODO: Fix table names with spaces, e.g., `Region Code`
+
 # Bring our constants in
 source ~/.bash_profile
 
@@ -16,7 +18,10 @@ get_databases ()
 # $1 - Name of the database
 get_tables () 
 {
-  TABLES=`psql -h $WMS -d $1 -c "\dt;" | grep public | cut -f2 -d "|" | sed 's/^ *//g'`
+  TABLES=`psql -h $WMS -d $1 -c "\dt;" | 
+	  grep public | 
+	  cut -f2 -d "|" | 
+	  sed 's/^ *//g'`
 }
 
 # Performs a count operation on a table in a database 
@@ -53,6 +58,7 @@ get_databases
 for DB in $DBS; do
 
   get_tables $DB 
+  IFS=$'\n'       # make newlines the only separator
   for TBL in $TABLES; do 
     
     get_old_count $WMS $DB $TBL
@@ -63,4 +69,5 @@ for DB in $DBS; do
       error_message $DB $TBL $OLD $NEW
     fi
   done 
+  unset IFS # Table names may have spaces, databases do not
 done
