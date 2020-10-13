@@ -8,8 +8,20 @@
 # Performs a count operation. And compares the previous to the new.
 # The script can handle table names that include whitespaces.
 
-# Bring our constants in
-source ~/.bash_profile
+# The IP address for the old server
+WMS='192.168.17.82'
+
+
+# Optional arguements to specify a different postgres IP address to check.
+while getopts :o: option
+do
+  case "${option}"
+  in
+    o) WMS=${OPTARG};;
+    ?) echo "No -${OPTARG} agrument found.";;
+  esac
+done
+
 
 # Returns a list of the databses in the old WMS server.
 get_databases () 
