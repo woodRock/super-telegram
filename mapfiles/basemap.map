@@ -1,0 +1,658 @@
+MAP
+  SIZE 600 600
+  EXTENT 172.87 -35.82 174.82 -34.35
+
+  IMAGECOLOR 194 227 254
+  IMAGETYPE PNG24
+
+  FONTSET fonts.txt
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Phase2 track"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/basemap?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Phase2 track"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/basemap?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+ SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "RoadCl"
+    TYPE ellipse
+    POINTS
+        1 1
+    END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME GIF
+    DRIVER "GD/GIF"
+    MIMETYPE "image/gif"
+    IMAGEMODE PC256
+    EXTENSION "gif"
+    TRANSPARENT ON
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "AGG/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  MAXSIZE 4096
+
+  #
+  # Layer 12mile
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "12mile"
+    GROUP "basemap"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/new-zealand-12-mile-limit/new-zealand-12-mile-limit.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "11 mile"
+      STYLE
+        COLOR 177 202 253
+      END
+    END
+
+    METADATA
+      "wms_title"           "12mile"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer coast_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "coast_poly"
+    GROUP "basemap"
+    TYPE polygon
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select gid, the_geom from coast_poly union select
+    gid+(select max(gid) from coast_poly) as gid, (the_geom)
+    as the_geom from chat_island_poly union select gid+(select max(gid) from
+    coast_poly)+(select max(gid) from chat_island_poly) as gid, the_geom  from
+    island_poly) as myquery using unique gid using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "coast"
+      STYLE
+        COLOR 254 251 211
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Coastline Polygon"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer islandspoly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "islandspoly"
+    GROUP "basemap"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/nz-islands-polygons-v14/nz-islands-polygons-v14.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "coast"
+      STYLE
+        COLOR 254 251 211
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Islands - polygon"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer urban_north
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "urban_north"
+    GROUP "basemap"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/nz-urban-north/nz-urban-north.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "urban area"
+      STYLE
+        COLOR 180 180 180
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Urban North"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer forrest
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "forrest"
+    GROUP "basemap"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/nz-forests-v14/nz-forests-v14.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "forest"
+      STYLE
+        COLOR 169 207 147
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Forrest"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer forrest native
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "forrest_nativ"
+    GROUP "basemap"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/nz-native-forests-v14/nz-native-forests-v14.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "forest"
+      STYLE
+        COLOR 169 207 147
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Forrest Nativ"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer majorrivers
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "majorrivers"
+    GROUP "basemap"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/nz-major-rivers/nz-major-rivers.shp"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "forest"
+      STYLE
+        COLOR 167 192 253
+        ANTIALIAS true
+		WIDTH 2
+      END
+    END
+
+    METADATA
+      "wms_title"           "Major Rivers"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer roadcl
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "roadcl"
+    GROUP "basemap"
+    TYPE line
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=basemap user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select * from roadcl) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Road Centreline"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" in "3,4" )
+        MINSCALE 300000
+        STYLE
+            COLOR 198 151 25
+            ANTIALIAS true
+            WIDTH 3
+        END
+        STYLE
+            COLOR 248 201 75
+            ANTIALIAS true
+            WIDTH 2
+        END
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" in "3,4" )
+        MAXSCALE 300000
+        STYLE
+            COLOR 198 151 25
+            ANTIALIAS true
+            WIDTH 4
+        END
+        STYLE
+            COLOR 248 201 75
+            ANTIALIAS true
+            WIDTH 3
+        END
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" == "2" )
+        MAXSCALE 300000
+        STYLE
+            COLOR 228 181 25
+            WIDTH 2
+        END
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" in "1" )
+        MAXSCALE 300000
+        MINSCALE 100000
+        STYLE
+            COLOR 120 120 120
+            WIDTH 1
+        END
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" in "1" )
+        MAXSCALE 100000
+        STYLE
+            COLOR 120 120 120
+            WIDTH 2
+        END
+    END
+
+    CLASS
+        EXPRESSION ("[roadclass]" in "0" )
+        MAXSCALE 100000
+        STYLE
+            COLOR 120 120 120
+            WIDTH 1
+        END
+    END
+  END
+
+  #
+  # Layer islands_line
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "islands_line"
+    GROUP "basemap"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/nz-islands-polygons-v14/nz-islands-polygons-v14.shp"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Islands - Line"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "island_line"
+      STYLE
+        COLOR 104 101 61
+        WIDTH 0.75
+        ANTIALIAS TRUE
+      END
+    END
+
+  END
+
+  #
+  # Layer coast_line
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "coast_line"
+    GROUP "basemap"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/new-zealand-coastline-pol/new-zealand-coastline-polygon-v14.shp"
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "wms_title"           "Coastline"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "coast_line"
+      STYLE
+        COLOR 104 101 61
+        WIDTH 0.75
+        ANTIALIAS TRUE
+      END
+    END
+
+  END
+
+  #
+  # Layer populated_places
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "populated_places"
+    GROUP "basemap"
+    TYPE annotation
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=basemap user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select * from placenames where desc_code in ('LOC','METR','POPL','TOWN','USAT')) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+	LABELITEM "name"
+	LABELCACHE ON
+
+    CLASS
+		EXPRESSION ("[desc_code]" in "METR" )
+		LABEL
+ 		  PRIORITY 10
+		  TYPE TRUETYPE
+		  FONT "dejavu"
+		  SIZE 12
+		  BUFFER 40
+		  COLOR         20  20  20
+		  OUTLINECOLOR 255 255 255
+		  OUTLINEWIDTH 2
+		  POSITION AUTO
+		  PARTIALS FALSE
+		END
+    END
+
+    CLASS
+		EXPRESSION ("[desc_code]" in "USAT" )
+		LABEL
+		  PRIORITY 9
+		  TYPE TRUETYPE
+		  FONT "dejavu"
+		  SIZE 10
+		  BUFFER 30
+		  COLOR         20  20  20
+		  OUTLINECOLOR 255 255 255
+		  OUTLINEWIDTH 2
+		  POSITION AUTO
+		  PARTIALS FALSE
+		END
+    END
+
+    CLASS
+		EXPRESSION ("[desc_code]" in "TOWN" )
+		LABEL
+		  PRIORITY 7
+		  TYPE TRUETYPE
+		  FONT "dejavu"
+		  SIZE 10
+		  BUFFER 30
+		  COLOR         20  20  20
+		  OUTLINECOLOR 255 255 255
+		  OUTLINEWIDTH 2
+		  POSITION AUTO
+		  PARTIALS FALSE
+		END
+    END
+
+    CLASS
+		EXPRESSION ("[desc_code]" in "POPL" )
+		LABEL
+		  PRIORITY 8
+		  TYPE TRUETYPE
+		  FONT "dejavu"
+		  SIZE 9
+		  BUFFER 20
+		  COLOR         20  20  20
+		  OUTLINECOLOR 255 255 255
+		  OUTLINEWIDTH 2
+		  POSITION AUTO
+		  PARTIALS FALSE
+		END
+    END
+
+    CLASS
+		EXPRESSION ("[desc_code]" in "LOC" )
+		MAXSCALE 300000
+		LABEL
+		  PRIORITY 6
+		  TYPE TRUETYPE
+		  FONT "dejavu"
+		  SIZE 8
+		  BUFFER 50
+		  COLOR         20  20  20
+		  OUTLINECOLOR 255 255 255
+		  OUTLINEWIDTH 1
+		  POSITION AUTO
+		  PARTIALS FALSE
+		END
+    END
+
+    METADATA
+      "wms_title"           "Populates Places"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+END

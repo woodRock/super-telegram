@@ -1,0 +1,486 @@
+MAP
+  SIZE 600 600
+  EXTENT 159 -57 190 -25
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Chatham Challenger Contextual Basemap"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/cc_context?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Chatham Challenger Contextual Basemap"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/cc_context?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  MAXSIZE 4096
+
+  #
+  # Layer EEZ
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "EEZ"
+    GROUP "context"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    DATA "chat-chal/eez_line/eez_line.shp"
+
+    METADATA
+      "wms_title"           "EEZ"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      STYLE
+        COLOR 255 0 0
+      END
+    END
+  END # of layer
+
+  #
+  # Layer coast_line
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "coast_line"
+    GROUP "context"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/new-zealand-coastline-pol/new-zealand-coastline-polygon-v14.shp"
+
+    CLASS
+      NAME  "coast_line"
+      STYLE
+        COLOR 44 174 70
+      END
+    END
+
+    METADATA
+      "wms_title"           "coast_line"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer coast_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "coast_poly"
+    GROUP "context"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/new-zealand-coastline-pol/new-zealand-coastline-polygon-v14.shp"
+
+    CLASS
+      NAME  "coast_poly"
+      STYLE
+        COLOR 254 251 211
+      END
+    END
+
+    METADATA
+      "wms_title"           "coast_poly"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer islandsline
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "islandsline"
+    GROUP "context"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/nz-islands-polygons-v14/nz-islands-polygons-v14.shp"
+
+    CLASS
+      STYLE
+        COLOR 44 174 70
+      END
+    END
+
+    METADATA
+      "wms_title"           "islandsline"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer islandspoly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "islandspoly"
+    GROUP "context"
+    TYPE polygon
+    STATUS on
+
+    DATA "basemap/nz-islands-polygons-v14/nz-islands-polygons-v14.shp"
+
+    CLASS
+      STYLE
+        COLOR 254 251 211
+      END
+    END
+
+    METADATA
+      "wms_title"           "islandspoly"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer 12mile
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "12mile"
+    GROUP "context"
+    TYPE line
+    STATUS on
+
+    DATA "basemap/new-zealand-12-mile-limit/new-zealand-12-mile-limit.shp"
+
+    CLASS
+      STYLE
+        COLOR 255 100 100
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    METADATA
+      "wms_title"           "12mile"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+  END
+
+  #
+  # Layer contours_z0
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "contours_z0"
+    GROUP "depth_contours"
+    TYPE line
+    STATUS default
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (select gid, depth::int, ST_simplify(geom,0.01) as geom from nz_bathy where depth in (250,1000,2000,3000,4000,5000,6000)) as myquery using unique gid using srid 4326"
+
+    METADATA
+      "wms_title"           "contours_z0"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    MINSCALEDENOM  2000000
+    MAXSCALEDENOM 40000000
+
+    CLASS
+      EXPRESSION ("[depth]" = "250")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 0 0
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "1000")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 180 0
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "2000")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 255 0
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "3000")
+      STYLE
+        ANTIALIAS true
+        COLOR 155 255 0
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "4000")
+      STYLE
+        ANTIALIAS true
+        COLOR 0 255 255
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "5000")
+      STYLE
+        ANTIALIAS true
+        COLOR 0 0 255
+      END
+    END
+    CLASS
+      EXPRESSION ("[depth]" = "6000")
+      STYLE
+        ANTIALIAS true
+        COLOR 155 0 255
+      END
+    END
+    CLASS
+      STYLE
+        ANTIALIAS true
+        COLOR 0 0 0
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+  END # of layer
+
+
+  #
+  # Layer contours_z1
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "contours_z1"
+    GROUP "depth_contours"
+    TYPE line
+    STATUS default
+
+    # TEXT ([depth]m)
+    LABELITEM "depth"
+
+    CONNECTIONTYPE postgis
+    CONNECTION "dbname=chat-chall user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (select gid, depth::int, (geom) as geom from nz_bathy where depth in (250,500,750,1000,2000,3000,4000,5000,6000)) as myquery using unique gid using srid 4326"
+
+    METADATA
+      "wms_title"           "contours_z1"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Contextual"
+      "wms_enable_request"	"*"
+    END
+
+    MINSCALEDENOM 0
+    MAXSCALEDENOM 2000000
+
+    CLASS
+      EXPRESSION ("[depth]" = "250")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 0 0
+      END
+
+      LABEL
+        TYPE bitmap
+        FONT 'arial'
+        # ANTIALIAS true
+        SIZE 12
+        COLOR 0 0 0
+        POSITION UC
+        PARTIALS false
+        # OUTLINECOLOR 250 250 250
+        # ANGLE auto
+        # REPEATDISTANCE 250
+        # MINFEATURESIZE 150
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "500")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 80 0
+        WIDTH 4
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "750")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 135 0
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "1000")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 180 0
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "2000")
+      STYLE
+        ANTIALIAS true
+        COLOR 255 255 0
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "3000")
+      STYLE
+        ANTIALIAS true
+        COLOR 155 255 0
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "4000")
+      STYLE
+        ANTIALIAS true
+        COLOR 0 255 255
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "5000")
+      STYLE
+        ANTIALIAS true
+        COLOR 0 0 255
+      END
+    END
+
+    CLASS
+      EXPRESSION ("[depth]" = "6000")
+      STYLE
+        ANTIALIAS true
+        COLOR 155 0 255
+      END
+    END
+
+    CLASS
+      STYLE
+        ANTIALIAS true
+        COLOR 100 100 100
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+  END # of layer
+
+END # of map

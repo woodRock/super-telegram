@@ -1,0 +1,172 @@
+MAP
+
+  SIZE 600 600
+  EXTENT 159 -57 190 -25
+
+  IMAGECOLOR  131 187 244
+  IMAGETYPE png24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "ows_title"          "MPI Enhanced Species Search"
+      "ows_onlineresource" "http://wms.niwa.co.nz/species_enhancedsearch?"
+      "ows_srs"            "EPSG:4326"
+      "ows_abstract"       "Provides features for MPI's Enhanced Species Search SilverStripe module."
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED false
+    POINTS 1 1 END
+  END
+
+  #
+  # Layer species_enhancedsearch
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "species_enhancedsearch"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=localhost"
+
+    DATA "geom_point from t_combined_samples using unique gid2 using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION DEFER"
+
+    METADATA
+      "wfs_title"          "MPI Enhanced Species Search"
+      "wfs_srs"            "EPSG:4326"
+      "wfs_featureid"      "gid2"
+      "gml_include_items"  "all"
+
+      "wfs_enable_request" "*"
+      "wms_enable_request" "*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "bluegreencircle"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 0 127 255
+        ANTIALIAS true
+      END
+    END
+  END
+
+  #
+  # Layer species_autosuggest
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "species_autosuggest"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=localhost"
+
+    DATA "geom_point FROM (
+        SELECT 
+         DISTINCT ON (lower(t_combined_samples.name::text),t_combined_samples.place) t_combined_samples.name, 
+         LOWER(t_combined_samples.name) AS lower_name,
+         t_combined_samples.gid,
+         t_combined_samples.status, 
+         t_combined_samples.established_status, 
+         t_combined_samples.source_database, 
+         t_combined_samples.date_start, 
+         t_combined_samples.geom_point,
+         t_combined_samples.gid2
+        FROM t_combined_samples
+        ORDER BY lower(t_combined_samples.name::text) 
+      ) AS autosuggest using unique gid2 using srid=4326"
+
+    METADATA
+      "wfs_title"          "MPI Species Autosuggest"
+      "wfs_srs"            "EPSG:4326"
+      "wfs_featureid"      "gid2"
+      "wfs_enable_request" "*"
+
+      "gml_include_items"  "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END    
+  END
+
+  #
+  # Layer coast_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "coast_poly"
+    TYPE polygon
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=localhost"
+
+    DATA "the_geom from (select gid, the_geom from seacoast union
+                         select gid+(select max(gid) from seacoast) as gid, (the_geom) as the_geom from chat_island_poly union
+                         select 1+gid+(select max(gid) from seacoast) as gid, ST_SHIFT_LONGITUDE(the_geom) as the_geom from chat_island_poly
+                        ) as myquery using unique gid using srid 4326"
+
+    METADATA
+      "wms_title"           "coastpoly"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME  "coastpoly"
+      STYLE
+        OUTLINECOLOR 248 249 230
+        COLOR 248 249 230
+        ANTIALIAS true
+      END
+    END
+
+  END # of coast_poly layer
+
+END
+

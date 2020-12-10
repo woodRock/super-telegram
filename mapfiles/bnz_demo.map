@@ -1,0 +1,873 @@
+MAP
+  SIZE 600 600
+
+  # layer ports just returns two port features if the original extent is used.
+  EXTENT  -176.8666667 -46.89697 178.0333333 -35.049209 # 177 -48 179 -34
+
+  IMAGECOLOR 194 227 254
+  IMAGETYPE PNG24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "ows_title"           "BNZ Demo"
+      "ows_onlineresource"  "http://wms.niwa.co.nz/bnz_demo?"
+      "ows_srs"             "EPSG:4326"
+
+      "ows_contactorganization"        "NIWA"
+      "ows_abstract"                   "various MAF BNZ portal layers"
+      "ows_keywordlist"                "biosecurity ports coastal MAFBNZ"
+      "ows_fees"                       "NIL"
+      "ows_accessconstraints"          "to be determined, generally public"
+      "ows_service_onlineresource"     "http://wms.niwa.co.nz/bnz_demo?"
+      "ows_contactperson"              "Graeme Inglis or Brent Wood"
+      "ows_contactposition"            "biosecurity scentist, web portal administrator"
+      "ows_contactvoicetelephone"      "64 3 343 8036"
+      "ows_contactfacsimiletelephone"  "64 3 348 5548"
+      "ows_city"                       "Christchurch"
+      "ows_country"                    "New Zealand"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "hatch-lines"
+    TYPE HATCH
+  END 
+
+  OUTPUTFORMAT
+    NAME GIF
+    DRIVER "GD/GIF"
+    MIMETYPE "image/gif"
+    IMAGEMODE PC256
+    EXTENSION "gif"
+    TRANSPARENT ON
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "AGG/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  MAXSIZE 4096
+
+  #
+  # Layer ports
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # Extent: "BOX(-176.8666667 -46.89697,178.0333333 -35.049209)"
+  LAYER
+    NAME "ports"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (select port,
+                            gid,
+                            place_type as type,
+                            code,
+                            ST_Shift_Longitude(geom) as geom
+                     from ports
+                     where geom notnull) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "ows_title"            "Port"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "-176.8666667 -46.89697 178.0333333 -35.049209"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "port_point"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END
+    END
+
+  END # layer
+
+  #
+  # Layer Surveillance_native
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # Extent: "BOX(168.29918188856 -46.6141343006186,176.273087095858 -35.250788178342)"
+  LAYER
+    NAME "Surveillance_native"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (SELECT t.stid as gid,
+                            n.taxon_name as name,
+                            s.geom_point as geom
+                     FROM surveillance.samples s, 
+                          public.taxon_names n,
+                          surveillance.s_taxa t
+                     WHERE s.site_id = t.site_id
+                       and t.key=n.key
+                       and n.biosecurity_status = 'Native'
+                     ) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "ows_title"            "Surveillance_native"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "168.29918188856 -46.6141343006186,176.273087095858 -35.250788178342"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Surv_native"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END
+    END
+
+  END # layer
+
+  #
+  # Layer NZ16_regions
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # Extent: "BOX(-178.642439817016 -54.8363956858818,178.804432003999 -28.6980797876185)"
+  LAYER
+    NAME "NZ16_regions"
+    TYPE POLYGON
+    STATUS on
+    DUMP true
+    TRANSPARENCY alpha
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom_poly from (select gid,
+                                 regioncode as code,
+                                 regionname as name,
+                                 geom_poly
+                          from nz16_regions
+                          union
+                          select gid+(select max(gid) from nz16_regions) as gid,
+                                 regioncode as code,
+                                 regionname as name,
+                                 ST_shift_longitude(geom_poly) as geom_poly
+                          from nz16_regions
+                          where regioncode=2 or regioncode=8) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "ows_title"            "NZ16 Regions"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "-178.642439817016 -54.8363956858818 178.804432003999 -28.6980797876185"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+
+      # note from previous developer:
+      # "wfs_extent" "177 -48 181 -34" # broken across 180
+    END
+
+    CLASS
+      #SENI
+      EXPRESSION ([code] = 6)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END 
+    CLASS
+      # Macquarie
+      EXPRESSION ([code] = 16)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # AKLI/CAMP
+      EXPRESSION ([code] = 15)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      #Snares
+      EXPRESSION ([code] = 14)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # Chat
+      EXPRESSION ([code] = 8)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # KERM
+      EXPRESSION ([code] = 2)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # Norfolk
+      EXPRESSION ([code] = 1)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # NENI      
+      EXPRESSION ([code] = 4)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 0 255
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 0 255
+      END
+    END
+    CLASS
+      # NWNI
+      EXPRESSION ([code] = 5)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 70 217 100
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 70 217 100
+      END
+    END
+    CLASS
+      # SWNI
+      EXPRESSION ([code] = 7)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 0 0 255
+        ANGLE 230
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 0 0 255
+      END
+    END
+    CLASS
+      # NESI
+      EXPRESSION ([code] = 9)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 70 217 100
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 70 217 100
+      END
+    END
+    CLASS
+      # SESI
+      EXPRESSION ([code] = 11)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+    CLASS
+      # Fiordland
+      EXPRESSION ([code] = 12)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 0 0 255
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 0 0 255
+      END
+    END
+    CLASS
+      # NWSI      
+      EXPRESSION ([code] = 10)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 0 255
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 0 255
+      END
+    END
+    CLASS
+      # Stewart      
+      EXPRESSION ([code] = 13)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 0 255
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 0 255
+      END
+    END
+    CLASS
+      # 3 kings      
+      EXPRESSION ([code] = 3)
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 128 0
+        ANGLE 130
+        SIZE 5
+        WIDTH 1
+      END
+      STYLE
+        WIDTH 2
+        OUTLINECOLOR 255 128 0
+      END
+    END
+
+    CLASS
+     NAME  "Default_region_class"
+     STYLE
+       SYMBOL "fatline"
+       SIZE 2
+       OUTLINECOLOR 255 255 0
+       ANTIALIAS true
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END # layer
+
+  #
+  # Layer wharves
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(-176.709094 -47.245378,183.761794 -34.516144)"
+  LAYER
+    NAME "wharves"
+    TYPE line
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select gid,
+                                fid,
+                                name,
+                                wharf_use,
+                                the_geom
+                          from wharf_cl
+                          union
+                          select gid+(select max(gid) from wharf_cl) as gid,
+                                 fid+(select max(fid) from wharf_cl) as fid,
+                                 name,
+                                 wharf_use,
+                                 the_geom
+                          from chat_wharf_cl
+                          union
+                          select gid+10+(select max(gid) from wharf_cl) as gid,
+                                 fid+10+(select max(fid) from wharf_cl) as fid,
+                                 name,
+                                 wharf_use,
+                                 ST_shift_longitude(the_geom) as the_geom
+                          from chat_wharf_cl
+                         ) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "ows_title"            "Wharves"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "-176.709094 -47.245378 183.761794 -34.516144"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "Region_class"
+      STYLE
+        SYMBOL "fatline"
+        SIZE 2
+        COLOR 17 10 7
+        ANTIALIAS true
+      END
+    END
+
+  END # wharf layer
+
+  #
+  # Layer rivers
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(166.433142 -47.268132,183.572413 -34.422218)"
+  LAYER
+    NAME "rivers"
+    TYPE polygon
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select gid,
+                                the_geom
+                          from river_poly
+                          where ST_AREA(the_geom) > 0.0001
+                          union
+                          select gid+(select max(gid) from wharf_cl) as gid,
+                                 the_geom
+                          from chat_river_poly
+                          where ST_AREA(the_geom) > 0.0001
+                          union
+                      select gid+10000+(select max(gid) from wharf_cl) as gid,
+                                 ST_shift_longitude(the_geom) as the_geom
+                          from chat_river_poly
+                          where ST_AREA(the_geom) > 0.0001
+                          union
+                          select gid,
+                                 the_geom
+                          from lake_poly
+                          where ST_AREA(the_geom) > 2.0e-05
+                         ) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "ows_title"            "Rivers"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "166.433142 -47.268132 183.572413 -34.422218"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "river_class"
+      STYLE
+        COLOR 10 10 255
+        ANTIALIAS true
+      END
+    END
+
+  END # rivers layer
+
+  #
+  # Layer Surv_samples
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(168.29918188856 -46.6141343006186,176.273087095858 -35.250788178342)"
+  LAYER
+    NAME "Surv_samples"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (select id,
+                            site_number,
+                            s_code as site_code,
+                            site_id,
+                            site_name,
+                            date_start::date as date_start,
+                            ST_X(geom_point) as long,
+                            ST_Y(geom_point) as lat,
+                            geom_point as geom
+                     from surveillance.samples
+                     where geom_point notnull) as myquery 
+          using unique id using srid=4326"
+
+    METADATA
+      "ows_title"            "Survey Samples"
+      "ows_srs"              "EPSG:4326"
+
+      "ows_extent"           "168.29918188856 -46.6141343006186 176.273087095858 -35.250788178342"
+      # note from previous developer:
+      # "wfs_extent" "177 -48 181 -34"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "id"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "samp_point"
+      STYLE
+        SYMBOL "circle"
+        SIZE 7
+        COLOR 255 0 0
+        ANTIALIAS true
+      END
+    END
+
+  END # layer
+
+  #
+  # Layer Port_extents
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(167.597923 -46.627197,178.033995 -35.259071)"
+  LAYER
+    NAME "Port_extents"
+    TYPE POLYGON
+    STATUS off
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA 'the_geom from (select id, extent as the_geom from port_extents) as myquery using unique id using srid=4326'
+
+    METADATA
+      "ows_title"            "Port Extents"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "167.597923 -46.627197,178.033995 -35.259071"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "id"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "extent"
+      STYLE
+        OUTLINECOLOR 0 0 0
+        ANTIALIAS true
+      END
+    END
+
+  END # layer
+
+  #
+  # Layer MITS_sites
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(-176.61411 -46.5665 183.6401 -34.4364)"
+  LAYER
+    NAME "MITS_sites"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA 'geom from (select min(id) as id,
+                            placename,
+                            port,
+                            ST_X(geom) as longitude,
+                            ST_Y(geom) as latitude,
+                            geom 
+                     from mits
+                     where geom notnull
+                     group by placename,
+                              port,
+                              longitude,
+                              latitude,
+                              geom
+                     union
+                     select min(id)+(select max(ID) from mits) as id,
+                            placename,
+                            port,
+                            ST_X(ST_SHIFT_LONGITUDE(geom)) as longitude,
+                            ST_Y(geom) as latitude,
+                            ST_SHIFT_LONGITUDE(geom) as geom
+                     from mits
+                     where geom notnull
+                       and (ST_X(geom) > 180
+                            or ST_X(geom)< 0)
+                     group by placename,
+                              port,
+                              longitude,
+                              latitude,
+                              geom) as myquery 
+          using unique id using srid=4326'
+
+    METADATA
+      "ows_title"            "MITS Sites"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "-176.61411 -46.5665 183.6401 -34.4364"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "id"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "mits_point"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END
+    END
+  END # MITS layer
+
+  #
+  # Layer coast_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  # "BOX(-176.893621 -47.290001,183.846082 -34.129566)"
+  LAYER
+    NAME "coast_poly"
+    TYPE polygon
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=wellmapsrvdev02"
+
+    DATA "the_geom from (select gid, 
+                                the_geom 
+                         from seacoast 
+                         union 
+                         select gid+(select max(gid) from seacoast) as gid,
+                                (the_geom) as the_geom 
+                         from chat_island_poly 
+                         union
+                         select 1+gid+(select max(gid) from seacoast) as gid,
+                                ST_shift_longitude(the_geom) as the_geom
+                         from chat_island_poly
+                        ) as myquery using unique gid using srid 4326"
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "ows_title"            "Coastline"
+      "ows_srs"              "EPSG:4326"
+      "ows_extent"           "-176.893621 -47.290001 183.846082 -34.129566"
+
+      "wms_enable_request"   "*"
+      "wfs_enable_request"   "*"
+
+      "gml_featureid"        "gid"
+      "gml_include_items"    "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME  "coastpoly"
+      STYLE
+        OUTLINECOLOR 104 101 61
+        WIDTH 1
+        ANTIALIAS TRUE
+      END
+      STYLE
+        COLOR 254 251 211
+        ANTIALIAS true
+      END
+    END
+
+  END # of coast_poly layer
+
+END # map

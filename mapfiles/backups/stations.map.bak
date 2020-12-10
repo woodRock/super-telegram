@@ -1,0 +1,730 @@
+MAP
+  SIZE 600 600
+  EXTENT 172.87 -35.82  174.82 -34.35
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "BoI Stations"
+      "wms_onlineresource"  "http://wellmapsrvdev.niwa.co.nz/cgi-bin/stations?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "BoI Stations"
+      "wfs_onlineresource"  "http://wellmapsrvdev.niwa.co.nz/cgi-bin/stations?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer stationdetails
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "stationdetails"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA "the_geom from (
+              select distinct gid, the_geom, '' as image_title, '' as image_description, atlas_id.atlas_id as id,
+              atlas_id.trip_code, atlas_id.station_no, atlas_id.filename, atlas_id.photo_no, '01/12/2009' as created
+              FROM t_station_final JOIN atlas_id ON  CAST(t_station_final.station as Integer
+          ) = atlas_id.station_no and lower(t_station_final.cruise_id) = lower(atlas_id.trip_code)
+          order by atlas_id.photo_no) as myquery using unique id using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Station details"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Station details"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+
+    PROJECTION
+       "init=epsg:4326"
+    END
+  END # of layer
+
+  #
+  # Layer ALL
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "ALL"
+    TYPE point
+    STATUS on 
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA "startp from t_station using unique id using srid=4326 "
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "All Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "All Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "all stations"
+      STYLE
+        SYMBOL "FatLine"
+        SIZE 3
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Beam_trawl
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Beam_trawl"
+    TEMPLATE "template.html"
+    TYPE POINT
+    STATUS on 
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =11
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Beam trawl stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Beam trawl stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Beam_trawl_track"
+      STYLE
+        SYMBOL "FatLine"
+        SIZE 3
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Dredge
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Dredge"
+    TYPE POINT
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =21
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Dredge Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Dredge Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "dredge_track"
+      STYLE
+        SYMBOL "FatLine"
+        SIZE 3
+        COLOR 255 255 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Epibenthic_sled
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Epibenthic_sled"
+    TYPE POINT
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =23
+          ) as myquery using unique id using srid=4326'
+
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Epibenthic sled Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Epibenthic sled Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Epibenthic_sled_track"
+      STYLE
+        SYMBOL "FatLine"
+        SIZE 3
+        COLOR 0 255 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Brenke_sled
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Brenke_sled"
+    TYPE POINT
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start
+              as "Time", lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from
+              t_station_final where CAST(gear_meth as Integer) =24
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Brenke sled Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Brenke sled Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Brenke_track"
+      STYLE
+        SYMBOL "FatLine"
+        SIZE 3
+        COLOR 255 0 255
+        ANTIALIAS true
+      END # of style
+
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Sediment_sample
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Sediment_sample"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =26
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Sediment Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Sediment Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Sediment"
+      STYLE
+        SYMBOL "CIRCLE"
+        SIZE 5
+        COLOR 0 0 255
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Bottom_grab
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Bottom_grab"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =27
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Bottom grab Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Bottom grab Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Bottom_grab"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer Multicorer
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Multicorer"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer
+          ) =29) as myquery using unique id using srid=4326'
+
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Multicorer Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Multicorer Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "Multicorer"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer DTIS
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "DTIS"
+    TYPE POINT
+    STATUS ON
+    DUMP TRUE
+
+    TEMPLATE "template.html"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+    DATA 'the_geom from (
+              select cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", gid as id, the_geom
+              from dtis_stations
+          ) as myquery using unique id using srid=4326'
+
+    METADATA
+      "wms_title"           "DTIS Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "DTIS Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "DTIS"
+      STYLE
+        SYMBOL "Fatline"
+        SIZE 5
+        COLOR 255 0 0
+        #ANTIALIAS true
+      END # of style
+
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer CTD
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "CTD"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    TEMPLATE "template.html"
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA 'the_geom from (
+              select gid as id, cruise_id as "Cruise", station as "Station", date_start as "Date", time_start as "Time",
+              lat_start as "Latitude", lon_start as "Longitude", depth_star as "Depth", the_geom from t_station_final
+              where CAST(gear_meth as Integer) =84
+          ) as myquery using unique id using srid=4326'
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "CTD Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "CTD Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+    ##################################################
+
+    #METADATA
+    #  "wms_format"   "text/plain"
+    #  "wms_abstract" "Shows location of CTD stations occupied during the Bay of Islands 20/20 survey"
+    #  "wms_enable_request"     "GetMap GetCapabilities"
+    #  "wms_metadataurl_type"   "other"
+    #  "wms_metadataurl_format" "text/plain"
+    #  "wms_metadataurl_href"   "http://dc.niwa.co.nz/boi_dc/srv/en/is019139.xml?uuid=36f7d9d6-60f3-45d5-9350-0fd333b5f82f"
+    #  "wfs_title" "CTD stations"
+    #END
+
+    MINSCALE 0
+    MAXSCALE 100000000000
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "CTD"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 255 0
+        ANTIALIAS true
+      END # of style
+
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer intertidalsediment
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "intertidalsediment"
+    TYPE point
+    STATUS off
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=boi user=mapserv host=localhost"
+
+    DATA "select point from intertidal_sediment_stations using unique id using srid=4326"
+
+    METADATA
+      "wms_title"           "Intertidal Sediment Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Intertidal Sediment Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "wfs_version"         "1.0.0"
+      "wfs_typename"        "IS_stations"
+      "wfs_request_method"  "GET"
+      "wfs_service"         "WFS"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      STYLE
+        SYMBOL "Circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+END # of map

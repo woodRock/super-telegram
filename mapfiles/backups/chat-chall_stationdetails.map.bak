@@ -1,0 +1,86 @@
+MAP
+  SIZE 600 600
+  EXTENT 172.87 -35.82  174.82 -34.35
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+  CONFIG "MS_ERRORFILE" "/tmp/error.map"
+  DEBUG 4
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wfs_title"           "Chatham-Challenger - Stations"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/cc_stationdetails?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer stationdetails
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "stationdetails"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "the_geom from (
+              select id as gid, startp as the_geom, '' as image_title, '' as image_description, a.atlas_id as id,
+              a.trip_code, a.station_no, a.file_name as filename, a.photo_no, '01/12/2009' as created
+              FROM atlas_dtis a, station s where a.trip_code = s.trip_code and a.station_no = s.station_no
+              order by a.photo_no
+          ) as myquery using unique id using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "wfs_title"           "Station details"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END # of layer
+
+END # of map

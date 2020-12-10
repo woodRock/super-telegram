@@ -1,0 +1,66 @@
+MAP
+  SIZE 600 600
+  EXTENT 172.87 -35.82  174.82 -34.35
+
+  IMAGECOLOR 255 255 255
+  IMAGETYPE PNG24
+
+  TRANSPARENT ON
+
+  UNITS DD
+  SHAPEPATH "/srv/www/htdocs/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Contours"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/concours?"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+    END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer species
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS & WFS
+  #
+  LAYER
+    NAME "contours"
+
+    TYPE RASTER
+    STATUS ON
+    CONNECTION "http://boi.arc.niwa.co.nz/arcgis/services/OS2020-BoI/OS2020_BoI_Bathymetry_contours/MapServer/WMSServer"
+    CONNECTIONTYPE WMS
+
+    OFFSITE 255 255 255
+
+    METADATA
+      "wms_name"            "0"
+      "wms_server_version"  "1.1.1"
+      "wms_format"          "image/png24"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_enable_request"	"*"
+    END
+  END
+
+END

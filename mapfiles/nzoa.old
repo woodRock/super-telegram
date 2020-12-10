@@ -1,0 +1,53 @@
+MAP
+  ## initial sites table set up by Brent Wood
+
+  SIZE 600 600
+  EXTENT 172.87 -35.82  174.82 -34.35
+  IMAGECOLOR 255 255 255
+  IMAGETYPE PNG24
+  TRANSPARENT ON
+  UNITS DD
+  SHAPEPATH "/srv/www/htdocs/mapdata/"
+
+  CONFIG "MS_ERRORFILE" "/tmp/mslog.log"
+  DEBUG 5 
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE  "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL  "/tmp/"
+
+    METADATA
+      "wfs_title"           "NZOA_sites"
+      "wfs_enable_request"  "*"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  LAYER
+    NAME "nzoa_sites"
+
+    TYPE point
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=nzoa host=localhost user=mapserv"
+    DATA "site from (select * from sites) as myquery 
+          using unique db_id using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wfs_name"           "NZOA_sites"
+      "wfs_enable_request" "*"
+      "wfs_srs"            "EPSG:4326"
+      "gml_include_items"  "all"
+      "gml_featureid"      "db_id"
+    END
+  END
+END

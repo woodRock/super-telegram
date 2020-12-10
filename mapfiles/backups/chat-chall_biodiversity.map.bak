@@ -1,0 +1,1119 @@
+MAP
+  SIZE 600 600
+  EXTENT -180 -90  180 90
+
+  IMAGECOLOR 255 255 255
+  IMAGETYPE png24
+  TRANSPARENT on
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Chatham-Challenger - Biodiversity"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/cc_biodiversity?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Biodiversity"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/cc_biodiversity?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  MAXSIZE 4096
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED false
+    POINTS 1 1 END
+  END
+
+  #
+  # Layer chat_chall_19
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "chat_chall_19"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA  "geom from (select gid,
+                             grp_19,
+                             geom
+                      from chatchall19
+                      union
+                      select gid + (select max(gid) from chatchall19) as gid,
+                             grp_19,
+                             ST_SHIFT_LONGITUDE(geom) as geom
+                      from chatchall19
+                      ) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+    # NOTE: colours selected to match maps in the report
+    CLASS
+      EXPRESSION ([grp_19] = 1)
+      COLOR 158 60 119
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 20)
+      COLOR 237 185 142
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 24)
+      COLOR 64 133 84
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 208)
+      COLOR 52 148 53
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 162)
+      COLOR 235 152 209
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 194)
+      COLOR 133 81 49
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 49)
+      COLOR 187 85 237 
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 211)
+      COLOR 175 230 151
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 99)
+      COLOR 104 242 150
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 222)
+      COLOR 186 121 122
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 102)
+      COLOR 82 114 128
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 12)
+      COLOR 177 247 92
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 177)
+      COLOR 160 250 224
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 196)
+      COLOR 82 72 133
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 150)
+      COLOR 147 156 67
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 29)
+      COLOR 82 108 227
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 34)
+      COLOR 217 85 78
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 236)
+      COLOR 92 143 219
+    END
+
+    CLASS
+      EXPRESSION ([grp_19] = 19)
+      COLOR 97 199 250
+    END
+
+    CLASS
+      COLOR 255 0 0
+    END 
+
+    METADATA
+      "wms_title"           "chat_chall_19"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+      "wms_group_title"     "chat_chall_19"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+  END
+
+  #
+  # Layer bomec30
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "bomec30"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA  "geom from (select gid,
+                             bomec_id,
+                             combin_170 as class_30,
+                             geom
+                      from bomec30
+                      union
+                      select gid + (select max(gid) from chatchall19) as gid,
+                             bomec_id,
+                             combin_170 as class_30,
+                             ST_SHIFT_LONGITUDE(geom) as geom
+                      from bomec30
+                      ) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    # NOTE: colours selected to match the printed maps in the report
+    CLASS
+      EXPRESSION ([class_30] = 10)
+      COLOR 62 130 52
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 19)
+      COLOR 237 109 133
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 27)
+      COLOR 105 82 235
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 16)
+      COLOR 158 112 104
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 7)
+      COLOR 135 250 179
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 25)
+      COLOR 76 112 135
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 82)
+      COLOR 136 189 98
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 83)
+      COLOR 97 163 237
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 95)
+      COLOR 49 72 135
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 72)
+      COLOR 154 202 230
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 17)
+      COLOR 70 158 112
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 65)
+      COLOR 107 176 161
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 107)
+      COLOR 207 138 185
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 74)
+      COLOR 145 54 52
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 114)
+      COLOR 86 222 232
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 116)
+      COLOR 116 130 82
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 119)
+      COLOR 81 51 135
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 102)
+      COLOR 75 176 62
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 46)
+      COLOR 150 54 96
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 67)
+      COLOR 217 125 82
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 71)
+      COLOR 232 181 104
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 151)
+      COLOR 247 141 246
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 69)
+      COLOR 232 225 97
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 145)
+      COLOR 173 100 232
+    END
+
+    CLASS
+      EXPRESSION ([class_30] = 154)
+      COLOR 168 59 157
+    END
+
+    CLASS
+      COLOR 255 0 0
+    END 
+
+    METADATA
+      "wms_title"           "bomec30"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+
+  END # of bomec30 layer
+
+  #
+  # Layer mec70
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "mec70"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA  "geom from (select gid,
+                             eezmec_id,
+                             grp__70 as class_70,
+                             geom
+                      from mec70
+                      union
+                      select gid + (select max(gid) from chatchall19) as gid,
+                             eezmec_id,
+                             grp__70 as class_70,
+                             ST_SHIFT_LONGITUDE(geom) as geom
+                      from mec70
+                      ) as myquery using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    # NOTE: colours selected to match the printed maps in the report
+    CLASS
+      EXPRESSION ([class_70] = 124)
+      COLOR 97 235 255
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 64)
+      COLOR 196 161 73
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 72)
+      COLOR 189 91 171
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 108)
+      COLOR 109 94 145
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 70)
+      COLOR 145 54 66
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 107)
+      COLOR 99 184 153
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 60)
+      COLOR 163 191 103
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 63)
+      COLOR 128 109 47
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 48)
+      COLOR 143 86 102
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 98)
+      COLOR 61 168 109
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 89)
+      COLOR 250 122 235
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 174)
+      COLOR 155 209 73
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 123)
+      COLOR 145 219 213
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 135)
+      COLOR 87 217 82
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 122)
+      COLOR 130 110 212
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 138)
+      COLOR 78 60 143
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 169)
+      COLOR 221 230 106
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 130)
+      COLOR 94 145 135
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 137)
+      COLOR 153 200 242
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 128)
+      COLOR 180 134 209
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 55)
+      COLOR 129 92 250
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 47)
+      COLOR 66 111 128
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 171)
+      COLOR 130 127 87
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 134)
+      COLOR 170 65 113
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 22)
+      COLOR 128 52 104
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 58)
+      COLOR 212 87 91
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 199)
+      COLOR 196 114 119
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 227)
+      COLOR 227 212 145
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 170)
+      COLOR 153 87 54
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 213)
+      COLOR 80 135 80
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 214)
+      COLOR 240 144 176
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 204)
+      COLOR 160 242 160
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 217)
+      COLOR 162 86 196
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 216)
+      COLOR 128 135 49
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 234)
+      COLOR 199 144 105
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 210)
+      COLOR 145 109 87
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 193)
+      COLOR 71 177 204
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 178)
+      COLOR 114 142 173
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 156)
+      COLOR 101 240 182
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 190)
+      COLOR 242 102 163
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 140)
+      COLOR 76 212 119
+    END
+
+    CLASS
+      EXPRESSION ([class_70] = 3)
+      COLOR 80 123 199
+    END
+
+    CLASS
+      COLOR 255 0 0
+    END 
+
+    METADATA
+      "wms_title"           "mec70"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+
+  END # of MEC70 layer
+
+
+  #
+  # Layer biodiversity_pielou
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS & WFS
+  #
+  LAYER
+    NAME "biodiversity_pielou"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+#   circle scale function for degrees: (pow(2,(s_size+1))/128)
+    DATA "geom from (select gid,
+                         avg_pielou,
+                         avg_pielou_class5 as pi_size,
+                         site,
+                         method,
+                         date_s as date,
+                         min_depth,
+                         max_depth,
+                         lat,
+                         lon,
+                         pow(2,(avg_pielou_class5+1))/256 as scale,
+                       ST_BUFFER(geom,(pow(2,(avg_pielou_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid) 
+                                   from map_final_biodiversity) as gid,
+                            avg_pielou,
+                            avg_pielou_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_pielou_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_pielou_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2 
+                                   from map_final_biodiversity) as gid,
+                            avg_pielou,
+                            avg_pielou_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_pielou_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_pielou_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+                     ) as myquery
+          using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 0 0 0
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_pielou"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_pielou"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+
+  END # of pielou layer
+
+  #
+  # Layer biodiversity_simpson
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "biodiversity_simpson"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "geom from (select gid,
+                         avg_simpson,
+                         avg_simpson_class5 as pi_size,
+                         site,
+                         method,
+                         date_s as date,
+                         min_depth,
+                         max_depth,
+                         lat,
+                         lon,
+                         pow(2,(avg_simpson_class5+1))/256 as scale,
+                       ST_BUFFER(geom,(pow(2,(avg_simpson_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)
+                                   from map_final_biodiversity) as gid,
+                            avg_simpson,
+                            avg_simpson_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_simpson_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_simpson_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2
+                                   from map_final_biodiversity) as gid,
+                            avg_simpson,
+                            avg_simpson_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_simpson_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_simpson_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+                    ) as myquery
+                    using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 45 128 0
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_simpson"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_simpson"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+
+  END # of layer
+
+  #
+  # Layer biodiversity_s
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "biodiversity_s"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "geom from (select gid,
+                            avg_s,
+                            avg_s_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_s_class5+1))/256 as scale,
+    ST_BUFFER(geom,(pow(2,(avg_s_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)
+                                   from map_final_biodiversity) as gid,
+                            avg_s,
+                            avg_s_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_s_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_s_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2
+                                   from map_final_biodiversity) as gid,
+                            avg_s,
+                            avg_s_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_s_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_s_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+                     ) as myquery
+          using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 255 128 0
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_s"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_s"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+
+  END # of layer
+
+  #
+  # Layer biodiversity_sra5
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "biodiversity_sra5"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "geom from (select gid,
+                            avg_sra5,
+                            avg_sra5_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_sra5_class5+1))/256 as scale,
+    ST_BUFFER(geom,(pow(2,(avg_sra5_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)
+                                   from map_final_biodiversity) as gid,
+                            avg_sra5,
+                            avg_sra5_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_sra5_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_sra5_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2
+                                   from map_final_biodiversity) as gid,
+                            avg_sra5,
+                            avg_sra5_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_sra5_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_sra5_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+          ) as myquery
+          using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 255 0 255
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_sra5"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_sra5"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+
+  END # of layer sra5
+
+  #
+  # Layer biodiversity_srf
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "biodiversity_srf"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "geom from (select gid,
+                            avg_srf,
+                            avg_srf_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_srf_class5+1))/256 as scale,
+    ST_BUFFER(geom,(pow(2,(avg_srf_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)
+                                   from map_final_biodiversity) as gid,
+                            avg_srf,
+                            avg_srf_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_srf_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_srf_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2
+                                   from map_final_biodiversity) as gid,
+                            avg_srf,
+                            avg_srf_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_srf_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_srf_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+          ) as myquery
+          using unique gid using srid=4326"
+
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 255 128 0
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_srf"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_srf"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+
+  END # of layer srf
+
+  #
+  # Layer biodiversity_n
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "biodiversity_n"
+    TEMPLATE "template.html"
+    TYPE POLYGON
+    STATUS on
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "geom from (select gid,
+                            avg_n,
+                            avg_n_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_n_class5+1))/256 as scale,
+    ST_BUFFER(geom,(pow(2,(avg_n_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)
+                                   from map_final_biodiversity) as gid,
+                            avg_n,
+                            avg_n_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_n_class5+1))/256 as scale,
+    ST_BUFFER(ST_SHIFT_LONGITUDE(geom),(pow(2,(avg_n_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     union
+                     select gid + (select max(gid)*2
+                                   from map_final_biodiversity) as gid,
+                            avg_n,
+                            avg_n_class5 as pi_size,
+                            site,
+                            method,
+                            date_s as date,
+                            min_depth,
+                            max_depth,
+                            lat,
+                            lon,
+                            pow(2,(avg_n_class5+1))/256 as scale,
+    ST_BUFFER(ST_TRANSLATE(geom, -360,0),(pow(2,(avg_n_class5+1))/128)) as geom
+                     from map_final_biodiversity
+                     where ST_X(geom)>175
+
+          ) as myquery_n
+          using unique gid using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    CLASS
+      OUTLINECOLOR 255 0 0
+    END
+
+	METADATA
+	  "wms_title"           "biodiversity_n"
+	  "wms_srs"             "EPSG:4326"
+	  "wms_enable_request"	"*"
+
+	  "wfs_title"           "biodiversity_n"
+	  "wfs_srs"             "EPSG:4326"
+	  "wfs_enable_request"  "*"
+
+	  "gml_include_items"   "all"
+	  "gml_featureid"       "gid"
+	END
+  END # of layer
+
+END # of map

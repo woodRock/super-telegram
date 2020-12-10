@@ -1,0 +1,448 @@
+MAP
+  SIZE 600 600
+  EXTENT 159 -57 190 -25
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Chatham Challenger - Stations"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/cc_biodiversity?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Chatham Challenger - Stations"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/cc_biodiversity?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "all_stations"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from station using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "All Stations"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "All Stations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "stations"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 0 0
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer sites
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "sites"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from sites using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Sites"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Sites"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Sites"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 255 100 100
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Boxcorer"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='CB') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Boxcorer"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Boxcorer"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Boxcorer"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 200 200 200
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Multicorer"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='CM') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Multicorer"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Multicorer"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Multicorer"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 200 200 200
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Beamtrawl"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='TB') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Beamtrawl"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Beamtrawl"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Beam_trawl"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 200 200 200
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Seamountsled"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='SEL') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Seamountsled"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Seamountsled"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Seamountsled"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 200 200 200
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Brenkesled"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='SEH') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "Brenkesled"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Brenkesled"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "Brenkesled"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 200 200 200
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+
+  #
+  # Layer all_stations
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "DTIS"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (select * from station where gearcode='DTIS') as myquery
+           using unique id using srid 4326"
+
+    #PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wms_title"           "DTIS"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "DTIS"
+      "wfs_enable_request"	"*"
+      "wfs_srs"             "EPSG:4326"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+ 
+    CLASS
+      NAME "DTIS"
+      STYLE
+        SYMBOL "circle"
+        SIZE 5
+        COLOR 100 100 100
+        ANTIALIAS true
+      END # of style
+    END # of class
+
+  END # of layer
+
+END # of map

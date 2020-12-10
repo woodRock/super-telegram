@@ -1,0 +1,127 @@
+MAP
+  #
+  # specify extract data read from local copy 
+  #
+  SIZE 600 600
+  EXTENT -180 -80 180 20
+  IMAGECOLOR  194 227 254   
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"                 "Specify Specimen Data"
+      #"wms_onlineresource"       "http://wms.niwa.co.nz/trawl_bw?"
+      "wms_srs"                   "EPSG:4326"
+
+      "wfs_title"                 "Specify Specimen Data"
+      #"wfs_onlineresource"       "http://wms.niwa.co.nz/trawl_bw?"
+      "wfs_srs"                   "EPSG:4326"
+
+      "ows_abstract"              "Specimen location data from NIWA NIC"
+      "ows_fees"                  "nil"
+      "ows_keywordlist"           "NIWA, specimen, NIC"
+      "ows_accessconstraints"     "nil"
+      "ows_contactorganization"   "NIWA"
+      "ows_contactperson"         "Sadie Mills"
+      "ows_contactposition"       "Collection Manager"
+      "ows_contactvoicetelephone" "+64 (4) 386-0464"
+      "ows_address"               "301 Evans Bay Parade, Hataitai, Wellington 6021"
+
+END
+  END
+
+  SYMBOL
+    NAME "circlef"
+    TYPE ellipse
+    FILLED true
+    POINTS
+      1 1
+    END # POINTS
+  END # SYMBOL
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer Specify detail
+  #
+  # Note:
+  #      - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "Specimens"
+    TYPE point
+    STATUS ON
+    DUMP TRUE
+    EXTENT -180 -80 180 20
+
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=specify_export user=specify_user host=wellmapsrvdev.niwa.co.nz port=5432"
+
+    DATA "startp from (
+              select oid as id,
+                     niwa_catalog_number, 
+                     station,
+                     startp 
+              from tab_prod
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "sample_point"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Specimen locations WMS"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Specimen locations"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+
+      "ows_abstract"        "Specimen location data from NIWA NIC"
+      "ows_keywordlist"     "NIWA, specimen, NIC"
+      "ows_accessconstraints" "nil"
+
+
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+END

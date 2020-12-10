@@ -1,0 +1,95 @@
+MAP
+  SIZE 600 600
+  EXTENT 159 -57 190 -25
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Chatham-Challallenger Stations"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/cc_species_2_grp?"
+      "wms_enable_request"	"*"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Chatham-Challallenger Stations"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/cc_species_2_grp?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED false
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer species
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS & WFS
+  #
+  LAYER
+    NAME "species"
+    TYPE point
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=chat-chall user=mapserv host=localhost"
+
+    DATA "startp from (
+              select id, trip_code, station_no, mingdepth, maxgdepth, gearcode, sum_noper1000m2 ,sum_abu_class,
+                     startp, otu
+              from v_abundance_stations where otu like '%spp%' and gearcode!='DTIS_STILL'
+          ) as myquery using unique id using srid 4326"
+
+    VALIDATION
+      "spp" "^[.]$"
+    END
+
+
+    METADATA
+      "wfs_title"           "Species"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_featureid"       "id"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      SYMBOL "circle"
+      SIZE 2
+      COLOR 255 0 0
+    END
+
+  END # of layer
+
+END # of map

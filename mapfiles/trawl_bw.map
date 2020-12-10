@@ -1,0 +1,274 @@
+MAP
+  #
+  # trawl direct from fish (prototype includes non-public data)
+  #
+  SIZE 600 600
+  EXTENT 160 -80  200 -30
+  IMAGECOLOR  194 227 254   
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Research Trawl Station Data"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/trawl_bw?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Research Trawl Station Data"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/trawl_bw?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circlef"
+    TYPE ellipse
+    FILLED true
+    POINTS
+      1 1
+    END # POINTS
+  END # SYMBOL
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer Trawl_All
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trawl_All"
+    TYPE line
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=fish user=fishreader host=wellfisheriesdb.niwa.co.nz port=5432"
+
+    DATA "track from (
+              select oid as id, trip_code, station_no, track from trawl.t_station where track notnull and
+              trip_code not like 'oma%'
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trawl_line"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Trawl All"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Trawl All"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer Trawl_Recent
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trawl_Recent"
+    TYPE line
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=fish user=fishreader host=wellfisheriesdb.niwa.co.nz port=5432"
+
+    DATA "track from (
+              select oid as id, trip_code, station_no, track from trawl.t_station where track notnull and
+              trip_code not like 'oma%' order by date_s desc limit 3000
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trawl_line"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Trawl Recent"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Trawl Recent"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer Trawl_1
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trawl_1"
+    TYPE line
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=fish user=fishreader host=wellfisheriesdb.niwa.co.nz port=5432"
+    DATA "track from (select oid as id, trip_code, station_no, date_s, time_s as time_start, gear_s as gear_depth_start,bot_gs as bottom_depth_start, gear_meth, distance, track from trawl.t_station where trip_code='tan1101' and station_no=12 and track notnull and trip_code not like 'oma%') as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trawl_1"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END # STYLE
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END # STYLE
+    END
+
+    METADATA
+      "wms_title"           "Trawl 1"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Trawl 1"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer Trawl_catch
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trawl_catch"
+    TYPE line
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=fish user=fishreader host=wellfisheriesdb.niwa.co.nz port=5432"
+
+    DATA "track from (
+              select t.track, c.oid as id, c.trip_code, c.station_no, s.com_name, c.species,  c.weight from
+              trawl.t_station t, trawl.t_catch c, rdb.species_master s where t.trip_code = 'tan1101' and
+              t.station_no = 12 and c.trip_code=t.trip_code and c.station_no=t.station_no and c.species = s.code and
+              track notnull
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trawl_catch"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Trawl Catch"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Trawl Catch"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+
+END

@@ -1,0 +1,336 @@
+MAP
+  #
+  # trawl from local copy of data)
+  #
+  SIZE 600 600
+  EXTENT 160 -80  200 -30
+  IMAGECOLOR  194 227 254   
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Research Trawl Station Data"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/trawl_stn?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Research Trawl Station Data"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/trawl_stn?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circlef"
+    TYPE ellipse
+    FILLED true
+    POINTS
+      1 1
+    END # POINTS
+  END # SYMBOL
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+  OUTPUTFORMAT
+    NAME "CSV"
+    DRIVER "OGR/CSV"
+    MIMETYPE "text/csv"
+    FORMATOPTION "LCO:GEOMETRY=AS_WKT"
+    FORMATOPTION "STORAGE=memory"
+    FORMATOPTION "FORM=simple"
+    FORMATOPTION "FILENAME=result.csv"
+  END
+
+
+  ############################################################################3
+  # Layer Trawl_All
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - revised Jun 2016 B Wood for local db - no access to wellfisheriesdb
+  #
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trawl_All"
+    TYPE line
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=trawl user=fishreader password=niwafish host=wellmapsrvdev02 port=5432"
+
+    DATA "track from (select id, trip_code, station_no, vessel, method, date_s, time_s, start_bdepth, end_bdepth, min_gdepth, max_gdepth, track from t_station where track notnull and trip_code not like 'oma%'
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trawl_All"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "Trawl_All"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Trawl_All"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  ##########################################################################
+  #
+  # Layer TRIP_List
+  #
+  # Note: created as dummy WFS layer for list of available trips, 
+  #   - B Wood, Jun 2016
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "Trip_List"
+    TYPE POINT
+    STATUS ON
+    DUMP TRUE
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=trawl user=fishreader host=wellmapsrvdev02 password=niwafish port=5432"
+
+    DATA "spot from (select id, spot, trip_code from t_trip_list) as myquery using unique id using srid 4326"
+
+    #DATA "startp from (select id, startp, trip_code from t_station limit 10) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trip_List"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wfs_title"           "Trip_List"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+
+
+  #######################################################################3333
+  #
+  # Layer Trip_Catch
+  #
+  # Note:
+  #   - developed by Brent - 
+  #   - uses mapserver variable substiution to return a single trip's data
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "Trip_Catch"
+    TYPE point
+    STATUS ON
+    DUMP TRUE
+
+    VALIDATION
+        "trip_code" "[a-z0-9]+"
+        "spp"       "[A-Z0-9]+"
+    END
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=trawl user=fishreader host=wellmapsrvdev02 port=5432"
+
+    DATA "startp from (select s.startp, s.id, s.trip_code, s.station_no, s.min_gdepth, s.max_gdepth, s.date_s, c.species, n.com_name, n.sci_name, c.weight from t_station s, t_catch c, t_species_names n where s.trip_code = '%trip_code%' and c.trip_code=s.trip_code and c.station_no=s.station_no and c.species=n.code and c.species = '%spp%') as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trip_Catch"
+      STYLE
+        COLOR 143 149 162
+        WIDTH 2
+      END # STYLE
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END # STYLE
+    END
+
+    METADATA
+      "wfs_title"           "Trip_Catch"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  ######################################################################
+  #
+  # Layer Trip_station
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Replaced Jun 2106 Brent Wood
+  #   - Supported interfaces : WFS & WMS
+  #
+  LAYER
+    NAME "Trip_station"
+    TYPE point
+    STATUS ON
+    DUMP TRUE
+
+    VALIDATION
+        "trip_code" "[a-z0-9]+"
+    END
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=trawl user=fishreader host=wellmapsrvdev02 port=5432"
+
+    DATA "startp from (select s.id, s.trip_code, s.station_no, s.vessel, s.method, s.date_s, s.time_s, s.start_bdepth, s.end_bdepth, s.min_gdepth, s.max_gdepth, s.startp, sum(c.weight) as catch_weight from t_station s, t_catch c where track notnull and s.trip_code = '%trip_code%' and s.trip_code=c.trip_code and s.station_no=c.station_no group by s.id, s.trip_code, s.station_no, s.vessel, s.method, s.date_s, s.time_s, s.start_bdepth, s.end_bdepth, s.min_gdepth, s.max_gdepth, s.startp) as myquery using unique id using srid 4326"
+
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trip_station"
+      STYLE
+        COLOR 143 149 162
+        WIDTH 2
+      END
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wfs_title"           "Trip_station"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #######################################################################3333
+  #
+  # Layer Trip_Species_List
+  #
+  # Note:
+  #   - developed by Brent - 
+  #   - uses mapserver variable substiution to return a single trip's data
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "Trip_Species_List"
+    TYPE POINT
+    STATUS ON
+    DUMP TRUE
+
+    VALIDATION
+        "trip_code" "[a-z0-9]+"
+    END
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=trawl user=fishreader host=wellmapsrvdev02 port=5432"
+
+    DATA "spot from (select t.id, trip_code, species, com_name, sci_name, spot from t_trip_species t, t_species_names n where trip_code='%trip_code%' and n.code = t.species) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Trip_Species_List"
+      STYLE
+        COLOR 143 149 162
+        WIDTH 2
+      END # STYLE
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END # STYLE
+    END
+
+    METADATA
+      "wfs_title"           "Trip_Species_List"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+
+END

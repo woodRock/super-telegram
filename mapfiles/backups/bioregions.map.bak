@@ -1,0 +1,157 @@
+MAP
+  SIZE 600 600
+  EXTENT  165.557970999962 -52.814861 184.457722 -29.033161
+
+  IMAGECOLOR 167 192 253
+  IMAGETYPE PNG24
+
+  UNITS DD
+
+  TRANSPARENT on
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  NAME "bioregions"
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "ows_title" "Bioregion - Simplified"
+      "ows_srs"   "EPSG:4326"
+
+      "ows_contactorganization"       "NIWA"
+      "ows_country"                   "New Zealand"
+
+      "ows_onlineresource"            "http://wms.niwa.co.nz/bioregions?"
+    END
+  END
+
+  LAYER
+    NAME  "bioregions_simplified"
+    TYPE POLYGON
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=bioregions user=mapserv host=localhost"
+
+    TEMPLATE "template.html"
+
+    DATA "geom from (select gid, \"REGION\", geom from bioregions_simplified) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "ows_title"            "bioregions_simplified"
+      "ows_srs"              "EPSG:4326"
+
+      "wfs_enable_request"   "*"
+      "wfs_version"          "1.0.0"
+      "wfs_typename"         "bioregions_simplified"
+      "wfs_featureid"        "gid"
+      "wfs_extent"           "165.557970999962 -52.814861 184.457722 -29.033161"
+
+      "wms_enable_request"   "*"
+      "wms_include_items" "all"
+      "wms_extent"           "165.557970999962 -52.814861 184.457722 -29.033161"
+
+      "gml_include_items" "all"
+    END
+
+
+    CLASS
+      EXPRESSION ([gid] = 1)
+      STYLE
+        COLOR "#D1FF73"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 2)
+      STYLE
+        COLOR "#737300"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 3)
+      STYLE
+        COLOR "#A87000"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 4)
+      STYLE
+        COLOR "#FF0000"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 5)
+      STYLE
+        COLOR "#828282"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 6)
+      STYLE
+        COLOR "#FFAA00"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 7)
+      STYLE
+        COLOR "#267300"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 8)
+      STYLE
+        COLOR "#C055FF"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 9)
+      STYLE
+        COLOR "#FFEBBE"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 10)
+      STYLE
+        COLOR "#00ffc5"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 11)
+      STYLE
+        COLOR "#730000"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 12)
+      STYLE
+        COLOR "#FFFF00"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 13)
+      STYLE
+        COLOR "#005CE6"
+      END
+    END
+    CLASS
+      EXPRESSION ([gid] = 14)
+      STYLE
+        COLOR "#FFBEE8"
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END # layer
+
+END # map
+

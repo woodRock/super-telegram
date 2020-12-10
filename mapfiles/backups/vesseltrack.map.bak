@@ -1,0 +1,109 @@
+MAP
+  SIZE 600 600
+  EXTENT 172.87 -35.82  174.82 -34.35
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE PNG24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Phase2 Stations"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/vesseltrack?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Phase2 Stations"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/vesseltrack?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+ SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer track
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS & WMS
+  #   - Track layer, full complexity, suitable for small scale maps (1,000,000 and below).
+  LAYER
+    NAME "track"
+    # GROUP "track"
+    TYPE line
+    STATUS on
+
+    DATA "boi_track/boi_track.shp"
+
+    TRANSPARENCY ALPHA
+
+    METADATA
+      "wms_title"           "Track"
+      "wms_srs"             "EPSG:4326"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "Track"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"	"*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "gid"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      MINSCALE 100000
+      NAME  "track"
+      STYLE
+        SIZE 1
+        SYMBOL 'circle'
+        COLOR 80 80 80
+        ANTIALIAS TRUE
+      END
+    END
+
+    CLASS
+      MAXSCALE 100000
+      NAME  "track"
+      STYLE
+        SIZE 2
+        SYMBOL 'circle'
+        COLOR 80 80 80
+        ANTIALIAS TRUE
+      END
+    END
+  END
+END

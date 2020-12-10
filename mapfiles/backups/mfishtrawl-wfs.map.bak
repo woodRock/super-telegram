@@ -1,0 +1,322 @@
+MAP
+  NAME "WFS_server"
+  STATUS ON
+
+  #
+  # Start of web interface definition
+  #
+  WEB
+    METADATA
+      "wfs_title"                  "WFS Services for MFish Trawl DB"
+      "wfs_onlineresource"         ""
+      "wfs_srs"                    "epsg:4326"
+      "wfs_abstract"               "Trawl Data WFS Service"
+      "wfs_enable_request" "*"
+    END
+  END
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  EXTENT -237.1 -71.3 -106.7 18.2
+
+  CONFIG MS_ENCRYPTION_KEY "/usr/lib/cgi-bin/mapdata/mfishtrawl/mfishtrawl-wfs.key"
+  CONFIG MS_ERRORFILE "/tmp/ms_mfishtrawl_error.txt"
+
+  # Start of layer definitions
+  # station data layer
+  LAYER
+    DEBUG 5
+
+    METADATA
+      "wfs_title"                 "Trawl Station Data"
+      "wfs_abstract"              "Trawl Station Data WFS layer"
+      "wfs_geometry_element_name" "MS_GEOMETRY"
+      "wfs_srs"                   "epsg:4326"
+      "wfs_extent"                "163.460333 -54.570833 194.033333 -32.306667"
+      "wfs_compute_number_matched" "false"
+      "wfs_enable_request" "*"
+
+      "gml_include_items"                      "all"
+      "gml_featureid"                          "id"
+
+      "gml_id_type"                            "Integer"
+      "gml_trip_code_type"                     "Character"
+      "gml_station_no_type"                    "Character"
+      "gml_start_date_type"                    "Character"
+      "gml_start_hemisphere_type"              "Character"
+      "gml_start_meridian_type"                "Character"
+      "gml_start_depthofsea_gearposition_type" "Integer"
+      "gml_areas_type"                         "Character"
+      "gml_weight_type"                        "Real"
+      "gml_count_type"                         "Integer"
+
+    END
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    VALIDATION
+      "tripcodes"				"^[aA-zZ]{3}[0-9]{4}($|',')"
+      "areacode"				"^[aA-zZ]{4}$"
+      "speciescode"				"^[aA-zZ]{3}$"
+
+      "default_tripcodes"			"___0000"
+      "default_areacode"			"____"
+      "default_speciescode"			"___"
+    END
+
+    DUMP TRUE
+
+    CONNECTIONTYPE postgis
+
+    NAME "stationcatch"
+
+    CONNECTION "host={52E501E487C547491A455D9315A0F6C4}
+                dbname={917BA0F1B9563363}
+                user={B20CAB03863CB3F46527519EB82DBD3C}
+                password={9F6EAC59053C6936E3514F2C9B97F1E4}
+                port={FFCC34752544826A}"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    DATA "geom FROM (
+      SELECT s.fid AS id,
+             s.trip_code AS trip_code,
+             s.station_no AS station_no,
+             s.date_s AS start_date,
+             s.nors_s AS start_hemisphere,
+             s.eorw_s AS start_meridian,
+             s.bot_gs AS start_depthofsea_gearposition,
+             t.areas AS areas,
+             s.geom AS geom,
+             COALESCE((SELECT sum(weight) 
+                         FROM t_catch
+                        WHERE station_no = s.station_no::int
+                          AND trip_code  = s.trip_code
+                          AND ('%speciescode%' = '___' OR species = '%speciescode%')), 0) AS weight,
+             (SELECT COUNT(*)
+                FROM t_catch
+               WHERE station_no = s.station_no::int
+                 AND trip_code  = s.trip_code
+                 AND ('%speciescode%' = '___' OR species = '%speciescode%')) as count
+        FROM t_station AS s
+        JOIN t_trip AS t
+             ON s.trip_code = t.trip_code
+       WHERE ((SELECT 1 WHERE '___0000' IN ('%tripcodes%')) IS NOT NULL OR s.trip_code IN ('%tripcodes%'))
+         AND ('%areacode%'  = '____' OR t.areas ~* '%areacode%') 
+      ) AS sd
+      USING UNIQUE id USING SRID=4326"
+
+    STATUS ON
+    TYPE POINT
+
+    CLASS
+      STYLE
+        SIZE 1
+        COLOR 0 0 0
+      END
+    END
+  END
+
+  # trawl survey layer
+  LAYER
+    DEBUG 5
+
+    METADATA
+      "wfs_title"                 "Trawl Survey Data"
+      "wfs_abstract"              "Trawl Survey Data WFS layer"
+      "wfs_geometry_element_name" "MS_GEOMETRY"
+      "wfs_srs"                   "epsg:4326"
+      "wfs_extent"                "163.460333 -54.570833 194.033333 -32.306667"
+      "wfs_enable_request" "*"
+
+      "gml_include_items"         "all"
+      "gml_featureid"             "id"
+
+      "gml_id_type"               "Integer"
+      "gml_trip_code_type"        "Character"
+      "gml_start_date_type"       "Character"
+      "gml_areas_surveyed_type"   "Character"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    VALIDATION
+      "areacode"			"^[aA-zZ]{4}$"
+      "speciescode"			"^[aA-zZ]{3}$"
+      "years"				"^[0-9]{4}($|,)"
+      "months"				"^[0-9]{2}($|,)"
+
+      "default_areacode"             	"____"
+      "default_speciescode"          	"___"
+      "default_years"                	"0000"
+      "default_months"               	"00"
+    END
+
+    DUMP TRUE
+
+    CONNECTIONTYPE postgis
+    NAME "trawlsurvey"
+
+    CONNECTION "host={52E501E487C547491A455D9315A0F6C4}
+                dbname={917BA0F1B9563363}
+                user={B20CAB03863CB3F46527519EB82DBD3C}
+                password={9F6EAC59053C6936E3514F2C9B97F1E4}
+                port={FFCC34752544826A}"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    DATA "geom FROM (
+      SELECT DISTINCT
+             t.fid AS id,
+             t.trip_code AS trip_code,
+             t.date_s    AS start_date,
+             t.areas     AS areas_surveyed,
+             t.geom AS geom
+        FROM t_trip    AS t
+        JOIN t_catch   AS c
+             ON t.trip_code = c.trip_code AND
+                ('%speciescode%' = '___' OR c.species = '%speciescode%')
+       WHERE ('%areacode%'    = '____' OR t.areas ~* '%areacode%')
+         AND ((SELECT 1 WHERE 0 IN (%years%)) IS NOT NULL OR date_part('year',  t.date_s) IN (%years%))
+         AND ((SELECT 1 WHERE 0 IN (%months%)) IS NOT NULL OR date_part('month', t.date_s) IN (%months%))
+      ) AS ts
+      USING UNIQUE id USING SRID=4326"
+
+    STATUS ON
+    TYPE POLYGON
+
+    CLASS
+      STYLE
+        SIZE 1
+        COLOR 255 0 0
+      END
+    END
+  END
+
+  # areas layer
+  LAYER
+    DEBUG 0
+
+    METADATA
+      "wfs_title"                 "Area Lookup Data"
+      "wfs_abstract"              "Area Loookup Data WFS layer"
+      "wfs_geometry_element_name" "MS_GEOMETRY"
+      "wfs_srs"                   "epsg:4326"
+      "wfs_extent"                "163.460333 -54.570833 194.033333 -32.306667"
+      "wfs_enable_request" "*"
+
+      "gml_include_items"         "all"
+      "gml_featureid"             "id"
+
+      "gml_id_type"               "Integer"
+      "gml_code_type"             "Character"
+      "gml_description_type"      "Character"
+
+    END
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    DUMP TRUE
+
+    CONNECTIONTYPE postgis
+    NAME "areas"
+
+    CONNECTION "host={52E501E487C547491A455D9315A0F6C4}
+                dbname={917BA0F1B9563363}
+                user={B20CAB03863CB3F46527519EB82DBD3C}
+                password={9F6EAC59053C6936E3514F2C9B97F1E4}
+                port={FFCC34752544826A}"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    DATA "geom FROM (
+        SELECT fid AS id,
+               area_code AS code, 
+               area_desc AS description,
+               geom AS geom
+          FROM t_area_code
+      ) AS ts
+      USING UNIQUE id USING SRID=4326"
+
+    STATUS ON
+    TYPE POLYGON
+
+    CLASS
+      STYLE
+        SIZE 1
+        COLOR 0 255 0
+      END
+    END
+  END
+
+  # species layer
+  LAYER
+    DEBUG 0
+
+    METADATA
+      "wfs_title"                 "Species Lookup Data"
+      "wfs_abstract"              "Species Loookup Data WFS layer"
+      "wfs_geometry_element_name" "MS_GEOMETRY"
+      "wfs_srs"                   "epsg:4326"
+      "wfs_extent"                "163.460333 -54.570833 194.033333 -32.306667"
+      "wfs_enable_request" "*"
+
+      "gml_include_items"         "all"
+      "gml_featureid"             "id"
+
+      "gml_id_type"               "Integer"
+      "gml_species_type"          "Character"
+      "gml_common_name_type"      "Character"
+
+    END
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    DUMP TRUE
+
+    CONNECTIONTYPE postgis
+    NAME "species"
+
+    CONNECTION "host={52E501E487C547491A455D9315A0F6C4}
+                dbname={917BA0F1B9563363}
+                user={B20CAB03863CB3F46527519EB82DBD3C}
+                password={9F6EAC59053C6936E3514F2C9B97F1E4}
+                port={FFCC34752544826A}"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    DATA "geom FROM (
+        SELECT fid AS id,
+               spp_code AS species,
+               com_name AS common_name,
+               geom AS geom
+          FROM t_species 
+          JOIN (
+            SELECT DISTINCT 
+                   c.species
+              FROM t_species AS s
+              JOIN t_catch   AS c
+                   ON s.spp_code = c.species
+          ) AS f
+               ON spp_code = f.species
+      ) AS ts
+      USING UNIQUE id USING SRID=4326"
+
+    STATUS ON
+    TYPE POLYGON
+
+    CLASS
+      STYLE
+        SIZE 1
+        COLOR 0 0 255
+      END
+    END
+  END
+
+END

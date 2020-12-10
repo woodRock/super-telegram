@@ -1,0 +1,100 @@
+MAP
+  SIZE 600 600
+  EXTENT -201.924713265606 -58.0101350912633 192.934180740499 -24.9511191038214
+
+  IMAGECOLOR 167 192 253
+  IMAGETYPE png24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wfs_title"           "Multibeam coverage"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/os2020_swath?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+ SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer swath_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "swath_poly"
+    TYPE polygon
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=os2020_oceans user=mapserv host=localhost"
+
+    DATA "geom from (
+              select gid as id, survey, program, vessel, pis, inst, start, finish, ports, url, report, custodian,
+              ST_simplify(geom,0.01) as geom from multibeam union select gid+1+(select max(gid) from multibeam) as id,
+              survey, program, vessel, pis, inst, start, finish, ports, url, report, custodian,
+              ST_Translate(ST_simplify(geom,0.01),-360,0) as geom from multibeam
+          ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    METADATA
+      "wfs_title"           "Multibeam"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_version"         "1.0.0"
+      "wfs_request_method"  "GET"
+      "wfs_service"         "WFS"
+      "wfs_typename"        "niwa_multibeam"
+      "wfs_extent"          "-201.924713265606 -58.0101350912633 192.934180740499 -24.9511191038214"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+      "wfs_enable_request"	"*"
+    END
+
+    CLASS
+      NAME  "multibeam"
+      STYLE
+        COLOR 254 251 211
+        ANTIALIAS true
+      END
+    END
+  END
+END

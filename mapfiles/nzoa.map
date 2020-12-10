@@ -1,0 +1,59 @@
+MAP
+  SIZE 600 600
+  EXTENT -180 -90  180 90
+  
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+  UNITS DD
+  
+  CONFIG "MS_ERRORFILE" "/tmp/mslog.log"
+  DEBUG 5
+
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wfs_title"           "NZOA"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_getcapabilities_version"	"1.0.0"
+    END
+  END
+
+  LAYER
+    NAME "nzoa_sites"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+    DUMP true
+    EXTENT -180 -90 180 90
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=nzoa user=mapserv host=wellmapsrvdev02"
+
+    DATA "site from (select * from sites where status != 'f') as myquery
+          using unique db_id using srid=4326"
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    METADATA
+      "wfs_title"           "nzoa_sites"
+      "wfs_srs"             "EPSG:4326"
+      "wfs_enable_request"  "*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "db_id"
+    END
+
+    PROJECTION
+       "init=epsg:4326"
+    END
+  END # of layer
+END # of map

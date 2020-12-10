@@ -1,0 +1,76 @@
+MAP
+  SIZE 600 480
+  EXTENT 172.7 -35.9  174.9 -34.3
+                                       
+  IMAGETYPE png24
+  UNITS DD
+
+  PROJECTION
+    "init=epsg:4326"
+  END
+
+  RESOLUTION 300
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "WMS-DEV LINZ topo raster server"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/linz250?"
+      "wms_srs"             "EPSG:4326"
+    END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+ #
+ # LAYER - Topographic maps
+ LAYER
+   NAME NZ250
+   TYPE RASTER
+   STATUS DEFAULT
+   TILEINDEX "topo250.shp"
+   TILEITEM "Location"
+
+   MINSCALE 200000
+
+   PROJECTION
+     "init=epsg:2193"
+   END
+
+   METADATA
+     "wms_title" "nz250"
+     "wms_srs" "epsg:4326"
+   END
+ END # LAYER
+
+
+ LAYER
+   NAME NZ50_NI
+   TYPE RASTER
+   STATUS DEFAULT
+   TILEINDEX "/srv/www/htdocs/topo50_NI.shp"
+   TILEITEM "Location"
+
+   MAXSCALE 200000
+
+   PROJECTION
+     "init=epsg:2193"
+   END
+
+   METADATA
+     "wms_title" "nz50_NI"
+     "wms_srs"   "epsg:4326"
+   END
+ END # LAYER
+
+END # MAP

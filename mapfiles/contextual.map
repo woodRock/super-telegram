@@ -1,0 +1,95 @@
+MAP
+  SIZE 600 600
+
+  EXTENT 172.87 -35.82  174.82 -34.35
+
+  IMAGECOLOR 167 192 253
+  IMAGETYPE PNG24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "ows_title"           "Contextual Map"
+      "ows_onlineresource"  "http://wms.niwa.co.nz/contextual?"
+      "ows_srs"             "EPSG:4326"
+    END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer contextual
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "contextual"
+
+    TYPE RASTER
+    STATUS ON
+
+    TRANSPARENCY ALPHA
+
+    CONNECTION "http://boi.arc.niwa.co.nz/arcgis/services/OS2020-BoI/OS2020_BoI_Land_GeoGrafx/MapServer/WMSServer?"
+    CONNECTIONTYPE WMS
+
+    METADATA
+      "wms_title"           "Contextual Map"
+      "wms_name"            "0"
+      "wms_srs"             "EPSG:4326"
+      "wms_server_version"  "1.1.1"
+      "wms_format"          "image/png"
+
+      "wms_enable_request"   "*"
+    END
+  END
+
+  #
+  # Layer contextual_blue
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "contextual_blue"
+
+    TYPE RASTER
+    STATUS ON
+
+    TRANSPARENCY ALPHA
+
+    CONNECTION "http://boi.arc.niwa.co.nz/arcgis/services/OS2020-BoI/OS2020_BoI_Land_GeoGrafx_blue/MapServer/WMSServer?"
+    CONNECTIONTYPE WMS
+
+    METADATA
+      "wms_title"           "Contextual Map (Blue)"
+      "wms_name"            "0"
+      "wms_srs"             "EPSG:4326"
+      "wms_server_version"  "1.1.1"
+      "wms_format"          "image/png"
+
+      "wms_enable_request"   "*"
+    END
+  END
+
+END

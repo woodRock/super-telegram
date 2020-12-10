@@ -1,0 +1,100 @@
+MAP
+  SIZE 600 600
+  EXTENT  158.87 -54.48 183.5 -28.97
+
+  IMAGECOLOR 167 192 253
+  IMAGETYPE png24
+
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  NAME "bioregions"
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "ows_title" "BNZ_bioregion_data"
+      "ows_srs"   "EPSG:4326"
+
+      "ows_contactorganization"       "NIWA"
+      "ows_abstract"                  "WMS layer with default plus selected bioregions"
+      "ows_keywordlist"               "WMS biosecurity bioregions coastal MAFBNZ"
+      "ows_fees" "NIL"
+      "ows_accessconstraints"         "to be determined, generally public"
+      "ows_service_onlineresource"    "http://wms.niwa.co.nz/mafbnz_bioregions"
+      "ows_contactperson"             "Graeme Inglis or Brent Wood"
+      "ows_contactposition"           "biosecurity scentist, web portal administrator"
+      "ows_contactvoicetelephone"     "64 3 343 8036"
+      "ows_contactfacsimiletelephone" "64 3 348 5548"
+      "ows_city"                      "Christchurch"
+      "ows_country"                   "New Zealand"
+
+      "ows_onlineresource"            "http://wms.niwa.co.nz/mafbnz_bioregions?"
+    END
+  END
+
+  LAYER
+    NAME  "bioregion_points"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=localhost"
+
+    DATA "geom from (select r.gid + (100 * p.id) as gid,
+                            r.gid as r_id,
+                            p.id as p_id,
+                            r.regioncode,
+                            r.regionname,
+                            p.geom,
+                           ('#'||case when (length(to_hex(r_fill))=1)
+                                     then '0'||to_hex(r_fill)
+                                     else to_hex(r_fill) end||
+                                case when (length(to_hex(g_fill))=1)
+                                     then '0'||to_hex(g_fill)
+                                     else to_hex(g_fill) end||
+                                case when (length(to_hex(b_fill))=1)
+                                     then '0'||to_hex(b_fill)
+                                     else to_hex(b_fill) end) as hex_fill,
+                           ('#'||case when (length(to_hex(r_pen))=1)
+                                     then '0'||to_hex(r_pen)
+                                     else to_hex(r_pen) end||
+                                case when (length(to_hex(g_pen))=1)
+                                     then '0'||to_hex(g_pen)
+                                     else to_hex(g_pen) end||
+                                case when (length(to_hex(b_pen))=1)
+                                     then '0'||to_hex(b_pen)
+                                     else to_hex(b_pen) end) as hex_pen
+                     from public.nz16_regions r,
+                          public.nz16_points p,
+                          public.bioregion_colours c
+                     where p.code = r.regioncode
+                       and c.region_code = r.regioncode
+                    ) as myquery
+          using unique gid using srid=4326"
+
+    METADATA
+      "wfs_title"            "bioregion_point"
+      "wfs_srs"              "EPSG:4326"
+      "wfs_version"          "1.0.0"
+      "wfs_typename"         "ports"
+      "wfs_featureid"        "gid"
+      "wfs_enable_request"   "*"
+      "wfs_extent"           "158.87 -54.48 183.5 -28.97"
+
+      "gml_include_items" "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END # layer
+
+END # map

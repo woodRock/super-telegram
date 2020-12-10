@@ -1,0 +1,192 @@
+MAP
+  SIZE 600 600
+  EXTENT 162.02988 -76.142248  220.15 -34.33242
+  IMAGECOLOR  194 227 254   
+  IMAGETYPE png24
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Acoustic Map Data (Recent Datasets only)"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/acoustic_bw?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Acoustic Map Data (Recent Datasets only)"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/acoustic_bw?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circlef"
+    TYPE ellipse
+    FILLED true
+    POINTS
+      1 1
+    END # POINTS
+  END # SYMBOL
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer TransectAll
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS/WFS
+  #
+  LAYER
+    NAME "TransectAll"
+    GROUP "Transect"
+    TYPE line
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=acoustic user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (
+              select id, trip_code, stratum, client, target, atlas_id, geom
+              from transect) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      NAME "Transect Line"
+      STYLE
+        COLOR 143 149 162
+        MAXSCALEDENOM 10959067
+        WIDTH 2
+      END
+
+      STYLE
+        COLOR 93 109 122
+        SYMBOL "circlef"
+        SIZE 1
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "TransectAll"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "Transect"
+      "wms_enable_request"	"*"
+
+      "wfs_title"           "TransectAll"
+      "wfs_srs"             "EPSG:4326"
+
+      "wfs_group_title"     "Transect"
+      "wfs_enable_request"  "*"
+
+      "gml_featureid"       "id"
+      "gml_include_items"   "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer TransectRand1000
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "TransectRand1000"
+    GROUP "Transect"
+    TYPE line
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=acoustic user=mapserv host=wellmapsrvdev02"
+
+     DATA "geom from (
+               ( select id,trip_code,vessel, client, target, atlas_id,geom
+                 from transect order by start_time limit 1000 )
+               union
+               ( select id+17000 as id,trip_code,vessel,client,target,atlas_id, ST_TRANSLATE(geom,-360,0) as geom
+                 from transect order by start_time limit 1000 )
+           ) as myquery using unique id using srid 4326"
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "wfs_title"           "Transect Random 1000"
+      "wfs_srs"             "EPSG:4326"
+
+      "wfs_group_title"     "Transect"
+      "wfs_enable_request"  "*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+
+  #
+  # Layer TransectRecent
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WFS
+  #
+  LAYER
+    NAME "TransectRecent"
+    GROUP "Transect"
+    TYPE line
+    STATUS ON
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=acoustic user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (
+              ( select id as map_id, id,trip_code,vessel, client, target, atlas_id, geom
+                from transect order by start_time desc limit 2000 )
+              union
+              ( select id+17000 as map_id, id,trip_code,vessel,client,target,atlas_id, ST_TRANSLATE(geom,-360,0) as geom
+                from transect order by start_time desc limit 2000 )
+          ) as myquery using unique map_id using srid 4326"
+
+
+    TEMPLATE "template.html"
+
+    METADATA
+      "wfs_title"           "Transect Recent"
+      "wfs_srs"             "EPSG:4326"
+
+      "wfs_group_title"     "TransectGroup"
+      "wfs_enable_request"  "*"
+
+      "gml_include_items"   "all"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+  END
+END

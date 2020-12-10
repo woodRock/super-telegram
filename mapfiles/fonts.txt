@@ -1,0 +1,3 @@
+arial                           arial.ttf
+dejavu                          /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+liberation                          /usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf

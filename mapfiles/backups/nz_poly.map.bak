@@ -1,0 +1,145 @@
+MAP
+  SIZE 600 600
+  EXTENT 159 -57  190 -25
+
+  IMAGECOLOR 167 192 253
+  IMAGETYPE PNG24
+
+  TRANSPARENT on
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Coast"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/nz_poly?"
+      "wms_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "AGG/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  MAXSIZE 4096
+
+  #
+  # Layer EEZ
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "EEZ"
+    TYPE line
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=nzpolitical user=mapserv host=localhost"
+
+    DATA "geom from (select gid, geom from eez_line_split) as myquery using unique gid using srid 4326 "
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+    CLASS
+      STYLE
+        COLOR 255 0 0
+        WIDTH 1.5
+        ANTIALIAS true
+      END
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    METADATA
+      "wms_title"           "EEZ"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+  END # of eez layer
+
+  #
+  # Layer NZ_coast_poly
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "NZ_coast_poly"
+    TYPE polygon
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=corax2005 user=mapserv host=localhost"
+
+    DATA "the_geom from (select gid, the_geom from seacoast union select gid+(select max(gid) from seacoast) as gid,
+              st_shift_longitude(the_geom) as the_geom from chat_island_poly
+          ) as myquery using unique gid using srid 4326 "
+
+    PROCESSING "CLOSE_CONNECTION=DEFER"
+
+    TEMPLATE "template.html"
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    OFFSITE 0 0 0
+
+    CLASS
+      NAME  "NZcoastpoly"
+      STYLE
+        COLOR 254 251 211
+        OUTLINECOLOR 0 255 0
+        ANTIALIAS true
+      END
+    END
+
+    METADATA
+      "wms_title"           "NZcoastpoly"
+      "wms_srs"             "EPSG:4326"
+
+      "wms_group_title"     "basemap"
+      "wms_enable_request"	"*"
+      "gml_include_items"   "all"
+    END
+
+  END # of layer
+
+END # of map

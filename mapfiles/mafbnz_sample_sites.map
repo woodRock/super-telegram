@@ -1,0 +1,207 @@
+MAP
+  SIZE 600 600
+  EXTENT 159 -57 190 -25
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  DATAPATTERN "*"
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"                              "Biosecurity_site_data"
+      "wms_srs"                                "EPSG:4326"
+
+      "ows_contactorganization"                "NIWA"
+      "ows_abstract"                           "MAFBNZ portal layer"
+      "ows_keywordlist"                        "biosecurity site sample coastal MAFBNZ"
+      "ows_fees"                               "NIL"
+      "ows_accessconstraints"                  "to be determined, generally public"
+      "ows_service_onlineresource"             "http://wms-dev.niwa.co.nz/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/mafbnz/species.map"
+      "ows_contactperson"                      "Graeme Inglis or Brent Wood"
+      "ows_contactposition"                    "biosecurity scentist, web portal administrator"
+      "ows_contactvoicetelephone"              "64 3 343 8036"
+      "ows_contactfacsimiletelephone"          "64 3 348 5548"
+      "ows_city"                               "Christchurch"
+      "ows_country"                            "New Zealand"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED false
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  # ###########################################################################
+  # Layer surv_sites_colour
+  #
+  LAYER
+    NAME "surv_sites_colour"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom_point from (SELECT MIN(id) AS id,
+                                  MIN(s.site_id) AS site_id,
+                                  MIN(s.s_code) AS site_code,
+                                  ST_X(geom_point)::decimal(8,5) AS lon,
+                                  ST_Y(geom_point)::decimal(7,5) AS lat,
+                                  s.geom_point
+                     FROM surveillance.samples s
+                     WHERE geom_point notnull
+                     GROUP BY s.geom_point) AS myquery
+           using unique id using srid 4326"
+
+    PROCESSING "CLOSE_CONNECTION DEFER"
+
+    METADATA
+      "wms_title" "surv_sites_colour"
+      "wms_srs"   "EPSG:4326"
+      "wms_srs"   "EPSG:4326"
+      "wms_enable_request"   "*"
+
+      "gml_include_items" "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "surv_spp_class"
+      STYLE
+        SYMBOL "circle"
+        SIZE 6
+        WIDTH 2
+        COLOR 0 0 255
+        ANTIALIAS true
+      END
+    END
+  END # of layer surv samples layer
+
+  # ###########################################################################
+  # Layer port_sites_colour
+  #
+  LAYER
+    NAME "port_sites_colour"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (SELECT MIN(s.id) AS id,
+                            MIN(s.survey_code) AS survey_code,
+                            MIN(s.site_code) AS site_code,
+                            ST_X(s.geom) AS lon,
+                            ST_Y(s.geom) AS lat,
+                            s.geom
+                     FROM public.samples s
+                     WHERE geom notnull
+                     GROUP BY s.geom) AS myquery using unique id using srid 4326"
+
+    PROCESSING "CLOSE_CONNECTION DEFER"
+
+    METADATA
+      "wms_title" "port_sites_colour"
+      "wms_srs"   "EPSG:4326"
+      "wms_srs"   "EPSG:4326"
+      "wms_enable_request"   "*"
+
+      "gml_include_items" "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "port_spp_class"
+      STYLE
+        SYMBOL "circle"
+        SIZE 6
+        WIDTH 2
+        COLOR 255 0 255
+        ANTIALIAS true
+      END
+    END
+  END # of port site layer
+
+  # ###########################################################################
+  # Layer mits_sites_colour
+  #
+  LAYER
+    NAME "mits_sites_colour"
+    TEMPLATE "template.html"
+    TYPE point
+    STATUS on
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    DATA "geom from (SELECT MIN(m.id) AS id,
+                            MIN(m.station_code) AS station_code,
+                            MIN(m.un_locode) AS site_code,
+                            ST_X(m.geom) AS lon,
+                            ST_Y(m.geom) AS lat,
+                            m.geom
+                     FROM public.mits m
+                     WHERE geom notnull
+                  GROUP BY m.geom) AS myquery USING UNIQUE id USING srid 4326"
+
+    PROCESSING "CLOSE_CONNECTION DEFER"
+
+    METADATA
+      "wms_title" "mits_sites_colour"
+      "wms_srs"   "EPSG:4326"
+      "wms_srs"   "EPSG:4326"
+      "wms_enable_request"   "*"
+
+      "gml_include_items" "all"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+      NAME "mits_sites_class"
+      STYLE
+        SYMBOL "circle"
+        SIZE 6
+        WIDTH 2
+        COLOR 255 0 0
+        ANTIALIAS true
+      END
+    END
+  END # of mits site layer
+
+END # of mapfile

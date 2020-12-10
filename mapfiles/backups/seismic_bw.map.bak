@@ -1,0 +1,101 @@
+MAP
+  SIZE 600 600
+  EXTENT -186.219512938582 -76.1098147661359 201.004447408731 -29.1038722983005
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  UNITS DD
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"           "Niwa Ocean"
+      "wms_onlineresource"  "http://wms.niwa.co.nz/seismic_bw?"
+      "wms_srs"             "EPSG:4326"
+
+      "wfs_title"           "Niwa Ocean"
+      "wfs_onlineresource"  "http://wms.niwa.co.nz/seismic_bw?"
+      "wfs_srs"             "EPSG:4326"
+    END
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED true
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  #
+  # Layer 12mile
+  #
+  # Note:
+  #   - Upgraded October 2014 by Rainer Spittel
+  #   - Supported interfaces : WMS
+  #
+  LAYER
+    NAME "niwa_seismic"
+    TYPE LINE
+    STATUS on
+
+    DUMP true
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=os2020_oceans user=mapserv host=localhost"
+
+    DATA "geom from (
+            select gid as id, survey, program, vessel, pis, inst, start,
+                   finish, seis_ins, ports, url, report, custodian, atlas_id,
+                   ST_SetSRID(ST_SIMPLIFY(geom,0.001),4326) as geom
+            from seismic union
+            select gid+1+(select max(gid) from seismic) as id, survey, program, vessel, pis, inst, start,
+                   finish, seis_ins, ports, url, report, custodian, atlas_id,
+                   ST_SetSRID(ST_TRANSLATE( ST_SIMPLIFY(geom,0.001),-360,0),4326) as geom
+            from seismic) as myquery using unique id using srid 4326"
+
+    METADATA
+      "wfs_title"             "niwa_seismic"
+      "wfs_srs"               "EPSG:4326"
+
+      "wfs_extent"            "-186.219512938582 -76.1098147661359 201.004447408731 -29.1038722983005"
+
+      "wfs_version"           "1.0.0"
+      "wfs_typename"          "niwa_seismic"
+      "wfs_request_method"    "GET"
+      "wfs_service"           "WFS"
+
+      "gml_include_items"     "all"
+      "gml_featureid"         "id"
+
+      "wfs_enable_request"	"*"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+  END # of layer
+END # of mapfile

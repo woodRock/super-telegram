@@ -1,0 +1,256 @@
+MAP
+  SIZE 600 600
+  EXTENT -178.642439817016 -54.8363956858818 184.09325649537 -28.6980797876185
+
+  IMAGECOLOR 180 180 250
+  IMAGETYPE png24
+
+  TRANSPARENT ON
+
+  UNITS DD
+  SHAPEPATH "/usr/lib/cgi-bin/mapdata/"
+
+  PROJECTION
+   "init=epsg:4326"
+  END
+
+  DATAPATTERN "*"
+
+  WEB
+    TEMPLATE "/var/www/html/map_template.html"
+    IMAGEPATH "/tmp/ms_tmp/"
+    IMAGEURL "/tmp/"
+
+    METADATA
+      "wms_title"                      "Biosecurity_Cranfield_species_data"
+      "wms_srs"                        "EPSG:4326"
+      "wms_contactorganization"        "NIWA"
+      "wms_abstract"                   "MAFBNZ portal layer"
+      "wms_keywordlist"                "biosecurity baseline Cranfield coastal MAFBNZ"
+      "wms_fees"                       "NIL"
+      "wms_accessconstraints"          "to be determined, generally public"
+      "wms_contactperson"              "Graeme Inglis or Brent Wood"
+      "wms_contactposition"            "biosecurity scentist, web portal administrator"
+      "wms_contactvoicetelephone"      "64 3 343 8036"
+      "wms_contactfacsimiletelephone"  "64 3 348 5548"
+      "wms_city"                       "Christchurch"
+      "wms_country"                    "New Zealand"
+
+      "wms_onlineresource"             "http://wms.niwa.co.nz/mafbnz_cranfield_spp?"
+      "wms_service_onlineresource"     "http://wms.niwa.co.nz/mafbnz_cranfield_spp?"
+    END
+  END
+
+  OUTPUTFORMAT
+    NAME PNG24
+    DRIVER "GD/PNG"
+    MIMETYPE "image/png"
+    EXTENSION PNG
+    IMAGEMODE RGBA
+    TRANSPARENT ON
+  END
+
+  SYMBOL
+    NAME "circle"
+    TYPE ELLIPSE
+    FILLED false
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "FatLine"
+    TYPE ellipse
+    POINTS 1 1 END
+  END
+
+  SYMBOL
+    NAME "hatch-lines"
+    TYPE HATCH
+  END
+
+  LAYER
+    NAME "cranfield_spp"
+    TYPE polygon
+    STATUS on
+
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "dbname=test_mafbnz user=mapserv host=wellmapsrvdev02"
+
+    VALIDATION
+        "spp" "[a-z]+"
+    END
+
+    DATA "geom_poly from (select r.gid,
+                                 r.regionname, 
+                                 1 as status,
+                                 ST_shift_longitude(r.geom_poly) as geom_poly 
+                          from nz16_regions r
+                          where r.regioncode in 
+                                       (select case when nz1='1' then 1 
+                                               else null end as id
+                                        from public.distribution       
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz2='1' then 2 
+                                               else null end as id 
+                                        from public.distribution       
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz3='1' then 3 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz4='1' then 4 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz5='1' then 5 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz6='1' then 6 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz7='1' then 7 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz8='1' then 8 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz9='1' then 9 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz10='1' then 10 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz11='1' then 11 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz12='1' then 12 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz13='1' then 13 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz14='1' then 14 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%')
+                                        union
+                                        select case when nz15='1' then 15 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =   
+                                                             '%spp%')
+                                        union
+                                        select case when nz16='1' then 16 
+                                               else null end as id 
+                                        from public.distribution
+                                        where key in  (select key 
+                                                     from public.taxon_names
+                                                     where taxon_name =  
+                                                             '%spp%'))
+                                       )
+                    as myquery using unique gid using srid 4326"
+
+    PROCESSING "CLOSE_CONNECTION DEFER"
+
+    DUMP TRUE
+        TEMPLATE "template.html"
+
+    METADATA
+      "wms_title"            "cranfield_spp"
+      "wms_srs"              "EPSG:4326"
+      "wms_extent"           "-178.642439817016 -54.8363956858818 184.09325649537 -28.6980797876185"
+      "gml_include_items"    "all"
+      "wfs_enable_request"   "*"
+      "wms_enable_request"   "*"
+      "gml_featureid"       "id"
+    END
+
+    PROJECTION
+      "init=epsg:4326"
+    END
+
+    CLASS
+
+      NAME "Species_class"
+      STYLE
+        SYMBOL 'hatch-lines'
+        COLOR 255 0 0
+        ANGLE 90
+        SIZE 4
+        WIDTH 2
+      END
+
+      STYLE
+        WIDTH 3
+        OUTLINECOLOR 255 0 0
+      END
+    END
+  END # of layer
+
+END # of map
