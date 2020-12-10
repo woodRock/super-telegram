@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# Author: Jesse Wood
+#
+# `localhost` does not work for the Postgres connections.
+# We change all occurences of `localhost` to `wellmapsrvdev02`.
+# This fixes the Postgres connections for all of the MapFiles.
+# We create backups, just in case our changes introduce bugs.
+
+OLD='localhost'
+NEW='wellmapsrvdev02'
+SFX='*.map'
+
+mkdir backups
+sed -i'backups/*.bak' "s/${OLD}/${NEW}/g" "${SFX}"
